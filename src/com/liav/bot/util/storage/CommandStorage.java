@@ -43,7 +43,7 @@ public final class CommandStorage {
 				return "newfag is NOT a command and will NEVER be a command";
 			}),
 			new Command("roll",
-					"Usage: random [*optional* bound]\nImagine rolling the dice. Now imagine not actually rolling a die, but imaginarily rolling it. You will get it",
+					"Usage: roll [*optional* bound]\nImagine rolling the dice. Now imagine not actually rolling a die, but imaginarily rolling it. You will get it",
 					"math", (String[] param) -> {
 						if (param.length <= 0 || param[0] == null) {
 							return "Rolled " + Bot.random.nextInt();
