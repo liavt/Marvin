@@ -23,6 +23,7 @@ public class MentionListener implements IListener<MentionEvent> {
 	@Override
 	public void handle(MentionEvent event) {
 		try {
+			System.out.println("Mentioned.");
 			CommandHandler.executeCommand(event.getMessage().getContent().indexOf(">") + 2, event.getMessage());
 		} catch (Throwable t) {
 			t.printStackTrace();

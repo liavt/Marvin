@@ -8,8 +8,8 @@ import com.liav.bot.main.Bot;
  * Runnable which automatically calls {@link TaskPool#tick()} every
  * {@value TaskPool#UPDATE_RATE} ms.
  * <p>
- * <b>This {@link Runnable} requires the thread monitor to run.
- * {@link Bot} executes it in an {@link Executor}</b>
+ * <b>This {@link Runnable} requires the thread monitor to run. {@link Bot}
+ * executes it in an {@link Executor}</b>
  * 
  * @author Liav
  *
@@ -24,7 +24,7 @@ public class TaskExecutor implements Runnable {
 					TaskPool.tick();
 				}
 			}
-		} catch (InterruptedException e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 	}

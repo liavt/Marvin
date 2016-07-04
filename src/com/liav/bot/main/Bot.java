@@ -50,7 +50,7 @@ public class Bot {
 		// discord
 		// client
 		final IDiscordClient client = new ClientBuilder()
-				.withToken("MTY4NzY2MjA2ODAxNzM5Nzc2.CewXzg.92a-omMSwsmZo0DzmMmOvMB3Pbs").login();
+				.withToken("MTY4NzY2MjA2ODAxNzM5Nzc2.Clt2Vw.7EBvun98AsX8stm_cfT2pS4ETgc").login();
 
 		return client;
 	}
@@ -121,11 +121,14 @@ public class Bot {
 	}
 
 	public static void main(String[] args) throws DiscordException {
+		System.out.println("Trying to build...");
 		client = buildClient();
+
 		final EventDispatcher dispatcher = client.getDispatcher();
 		dispatcher.registerListener(new ReadyListener());
 		dispatcher.registerListener(new MentionListener());
 		dispatcher.registerListener(new MessageListener());
+		System.out.println("Build complete.");
 		Executors.newSingleThreadExecutor().execute(new TaskExecutor());
 	}
 }

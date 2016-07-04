@@ -1,16 +1,12 @@
 package com.liav.bot.util.storage;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 
 import javax.script.ScriptException;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 import com.liav.bot.interaction.commands.CategoryHandler;
 import com.liav.bot.interaction.commands.CategoryHandler.Category;
@@ -244,24 +240,24 @@ public final class CommandStorage {
 								}
 							}
 
-							// final ProcessBuilder pb = new ProcessBuilder(new
-							// String[] { "lib/ffmpeg.exe", "-i",
-							// preconversion.getAbsolutePath(),
-							// out.getAbsolutePath() }).inheritIO();
-							// code = pb.start().waitFor();
-							// if (code < 0) {
-							// return "Error converting video! It may be
-							// corrupt.";
-							// }
+							final ProcessBuilder pb = new ProcessBuilder(new String[] { "lib/ffmpeg.exe", "-y", "-i",
+									preconversion.getAbsolutePath(), out.getAbsolutePath() }).inheritIO();
+							code = pb.start().waitFor();
+							if (code < 0) {
+								return "Error converting video! It may be corrupt.";
+							}
 							ch.join();
 							System.out.println("Playing from " + out.getAbsolutePath());
-							// the following line is a beauty of a line,
-							// courtesy of java. take that however you wish
-							try (final InputStream stream = AudioSystem.class
-									.getResourceAsStream(preconversion.getAbsolutePath());
-									final InputStream bufstream = new BufferedInputStream(stream)) {
-								ch.getAudioChannel().queue(AudioSystem.getAudioInputStream(bufstream));
-							}
+							ch.getAudioChannel().setVolume(1.5f);
+							ch.getAudioChannel().queueFile(out);
+							// // the following line is a beauty of a line,
+							// // courtesy of java. take that however you wish
+							// try (final InputStream stream = AudioSystem.class
+							// .getResourceAsStream(preconversion.getAbsolutePath());
+							// final InputStream bufstream = new
+							// BufferedInputStream(stream)) {
+							// ch.getAudioChannel().queue(AudioSystem.getAudioInputStream(bufstream));
+							// }
 							TaskPool.addTask(() -> {
 								try {
 									if (ch.getAudioChannel().getQueueSize() < 0) {
@@ -290,10 +286,11 @@ public final class CommandStorage {
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 							return "Video conversion interrupted";
-						} catch (UnsupportedAudioFileException e) {
-							e.printStackTrace();
-							return "Video is in a strange format; can't play";
 						}
+						// catch (UnsupportedAudioFileException e) {
+						// e.printStackTrace();
+						// return "Video is in a strange format; can't play";
+						// }
 						return "playing " + param[0] + " in " + ch.getName();
 					}),
 			new Command("category",

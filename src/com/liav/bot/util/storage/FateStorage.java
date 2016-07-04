@@ -1,6 +1,5 @@
 package com.liav.bot.util.storage;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -23,7 +22,7 @@ public class FateStorage {
 					s.close();
 				}
 			}
-		} catch (IOException e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 		return null;

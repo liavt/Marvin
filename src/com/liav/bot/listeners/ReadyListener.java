@@ -8,8 +8,6 @@ import com.liav.bot.main.Bot;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.IListener;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
-import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.HTTP429Exception;
 import sx.blah.discord.util.Image;
 
 /**
@@ -24,14 +22,18 @@ public class ReadyListener implements IListener<ReadyEvent> {
 	@Override
 	public void handle(ReadyEvent event) {
 		try {
+			System.out.println("Preparing...");
 			final IDiscordClient client = event.getClient();
 			client.updatePresence(false, Optional.of("in moderation"));
-			client.changeUsername("Automoderator");
+			// client.changeUsername("Marvin");
 			client.changeAvatar(Image.forFile(new File("hal.png")));
-			if (client.isReady()) {
-				System.out.println("Connected and ready");
+			System.out.println("Waiting for connection...");
+			while (!client.isReady()) {
+				;
 			}
-		} catch (DiscordException | HTTP429Exception e) {
+			System.out.println("Connected and ready");
+
+		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 	}
