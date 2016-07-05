@@ -432,9 +432,8 @@ public final class CommandStorage {
 			                Elements media = doc.select("div");
 
 			                for (Element src : media) {
-
-				                if (src.tagName().equals("post")) strings
-				                        .add(src.attr("id").toString());
+				                if (src.className().equals("post")) 
+				                	strings.add(src.attr("id").toString());
 			                }
 
 		                } catch (Exception e) {
