@@ -34,6 +34,15 @@ public class Command {
 	private final boolean tts, admin;
 
 	/**
+	 * Get whether only admin users can use this command
+	 * 
+	 * @return Admin status of command
+	 */
+	public boolean isAdminCommand() {
+		return admin;
+	}
+
+	/**
 	 * 
 	 * Gets the command {@linkplain CategoryHandler.Category category's} name.
 	 * 
@@ -130,6 +139,38 @@ public class Command {
 	 *            Name of the category that this command is in.
 	 * @param tts
 	 *            Whether the response should utilize TTS (Text-To-Speech)
+	 * @param admin
+	 *            Whether this command can only be used by admin users
+	 * @param a
+	 *            The functional interface that gets run when this command is
+	 *            executed. {@link StringCommand#action(String[])} takes in the
+	 *            command parameters.
+	 */
+	public Command(
+	        String n, String h, String cat, boolean tts, boolean admin,
+	        InteractiveCommand a) {
+		this(n, h, cat, false, admin, (AdvancedCommand) a);// the cast because
+		// otherwise the compiler
+		// doesnt know what
+		// constructor to choose
+	}
+
+	/**
+	 * Overloading constructor, and using a {@link InteractiveCommand} instead
+	 * of an {@link AdvancedCommand}. {@link Command Commands} that are purely
+	 * text based (the only thing it does is reply with a message) should use
+	 * this constructor to save space.
+	 * 
+	 * @param n
+	 *            The name for the command. This is what the {@linkplain IUser}
+	 *            types in to run the command.
+	 * @param h
+	 *            This is the help text that appears when the {@code help}
+	 *            command is used.
+	 * @param cat
+	 *            Name of the category that this command is in.
+	 * @param tts
+	 *            Whether the response should utilize TTS (Text-To-Speech)
 	 * @param a
 	 *            The functional interface that gets run when this command is
 	 *            executed. {@link StringCommand#action(String[])} takes in the
@@ -164,6 +205,35 @@ public class Command {
 	 */
 	public Command(String n, String h, String cat, InteractiveCommand a) {
 		this(n, h, cat, false, a);
+	}
+
+	/**
+	 * Overloading constructor, and using a {@link StringCommand} instead of an
+	 * {@link AdvancedCommand}. {@link Command Commands} that are purely text
+	 * based (the only thing it does is reply with a message) should use this
+	 * constructor to save space.
+	 * 
+	 * @param n
+	 *            The name for the command. This is what the {@linkplain IUser}
+	 *            types in to run the command.
+	 * @param h
+	 *            This is the help text that appears when the {@code help}
+	 *            command is used.
+	 * @param cat
+	 *            Name of the category that this command is in.
+	 * @param tts
+	 *            Whether the response should utilize TTS (Text-To-Speech)
+	 * @param admin
+	 *            Whether this command can only be used by admin users
+	 * @param a
+	 *            The functional interface that gets run when this command is
+	 *            executed. {@link StringCommand#action(String[])} takes in the
+	 *            command parameters.
+	 */
+	public Command(
+	        String n, String h, String cat, boolean tts, boolean admin,
+	        StringCommand a) {
+		this(n, h, cat, tts, admin, (AdvancedCommand) a);
 	}
 
 	/**

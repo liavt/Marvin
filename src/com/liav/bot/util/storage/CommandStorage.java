@@ -481,6 +481,8 @@ public final class CommandStorage {
 	                "uptime",
 	                "Usage: uptime\nSee how long the bot has been running",
 	                "meta",
+	                false,
+	                true,
 	                (final String[] p, final IUser u) -> {
 		                return "Up for "
 		                        + AutomodUtil.timeToString(Integer.parseInt(String

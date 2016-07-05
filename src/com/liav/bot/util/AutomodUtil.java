@@ -112,7 +112,7 @@ public final class AutomodUtil {
 		for (IRole r : l) {
 			final EnumSet<Permissions> e = r.getPermissions();
 			for (Permissions p : e) {
-				if (p.hasPermission(Permissions.MANAGE_SERVER.ordinal())) { return true; }
+				if (p.hasPermission(Permissions.MANAGE_ROLES.ordinal())) { return true; }
 			}
 		}
 		return false;
