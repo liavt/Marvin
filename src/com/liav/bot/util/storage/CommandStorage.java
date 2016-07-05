@@ -443,7 +443,7 @@ public final class CommandStorage {
 		                final String[] array = strings
 		                        .toArray(new String[strings.size()]);
 		                final int rnd = Bot.random.nextInt(array.length);
-		                finRes = "i.imgur.com/" + (array[rnd]).toString()
+		                finRes = "http://i.imgur.com/" + (array[rnd]).toString()
 		                        + ".png";
 		                try {
 			                c.sendFile(new File(new URI(finRes)));
