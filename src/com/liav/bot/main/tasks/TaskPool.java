@@ -84,4 +84,13 @@ public final class TaskPool {
 	public static void removeTask(Task t) {
 		tasks.remove(t);
 	}
+
+	/**
+	 * Gets the current number of taks
+	 * 
+	 * @return the size of the internal task buffer
+	 */
+	public static int tasks() {
+		return tasks.size();
+	}
 }

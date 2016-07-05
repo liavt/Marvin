@@ -16,10 +16,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.util.DiscordException;
+import sx.blah.discord.util.HTTP429Exception;
+import sx.blah.discord.util.MissingPermissionsException;
 
 import com.liav.bot.interaction.commands.CategoryHandler;
 import com.liav.bot.interaction.commands.CategoryHandler.Category;
@@ -416,7 +418,7 @@ public final class CommandStorage {
 	                "succ",
 	                "Usage: succ\n*succ*",
 	                "fun",
-	                (final String[] p, final IUser user, IChannel c) -> {
+	                (final String[] p, final IUser user) -> {
 		                String finRes = "";
 		                Vector<String> strings = new Vector<String>();
 
@@ -475,5 +477,59 @@ public final class CommandStorage {
 		                        + "\nWith *" + Bot.getErrors()
 		                        + "* errors and *" + Bot.getCommands()
 		                        + "* commands executed.";
+	                }),
+	        new Command(
+	                "say",
+	                "Usage: say [*optional* -t][phrase]\nMake the bot say a phrase\n-t makes the message utilize TTS (Text-to-Speech)",
+	                "fun",
+	                false,
+	                true,
+	                (final String[] p, final IMessage m) -> {
+		                if (p.length < 1) { return "Must have a parameter!"; }
+		                try {
+			                m.delete();
+		                } catch (DiscordException e) {
+			                e.printStackTrace();
+			                Bot.incrementError();
+			                return "An error in Discord occured.";
+		                } catch (HTTP429Exception e) {
+			                e.printStackTrace();
+			                Bot.incrementError();
+			                return "Too many requests! Try again later.";
+		                } catch (MissingPermissionsException e) {
+			                e.printStackTrace();
+			                Bot.incrementError();
+		                }
+
+		                final boolean tts;
+		                if (p[0].equals("-t")) {
+			                tts = true;
+		                } else tts = false;
+		                final StringBuilder sb = new StringBuilder();
+		                for (int i = tts ? 1 : 0; i < p.length; i++) {
+			                sb.append(p[i]).append(" ");
+		                }
+
+		                try {
+			                Bot.sendMessage(sb.toString(), tts, m.getChannel());
+		                } catch (DiscordException e) {
+			                e.printStackTrace();
+			                Bot.incrementError();
+			                return "An error in Discord occured.";
+		                } catch (HTTP429Exception e) {
+			                e.printStackTrace();
+			                Bot.incrementError();
+			                return "Too many requests! Try again later.";
+		                } catch (MissingPermissionsException e) {
+			                e.printStackTrace();
+			                Bot.incrementError();
+		                }
+
+		                return "";
+	                }),
+	        new Command("tasks",
+	                "Usage: tasks\nGet the amount of tasks running", "meta",
+	                false, true, (final String[] p, final IUser u) -> {
+		                return "Current task pool size: " + TaskPool.tasks();
 	                }) };
 }

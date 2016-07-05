@@ -1,6 +1,7 @@
 package com.liav.bot.interaction.commands;
 
 import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.MessageBuilder;
 
@@ -109,8 +110,8 @@ public class Command {
 	 *            The user who executed the command.
 	 * @return The {@code String} to reply to the user with.
 	 */
-	public String execute(String[] param, IUser u, IChannel c) {
-		return action.action(param, u, c);
+	public String execute(String[] param, IMessage m) {
+		return action.action(param, m);
 	}
 
 	/**

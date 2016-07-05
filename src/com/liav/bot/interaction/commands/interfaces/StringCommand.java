@@ -1,6 +1,6 @@
 package com.liav.bot.interaction.commands.interfaces;
 
-import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 
 import com.liav.bot.interaction.commands.CategoryHandler;
@@ -55,9 +55,10 @@ public interface StringCommand extends InteractiveCommand {
 	 *         command.
 	 */
 	public static AdvancedCommand getHelpCommand() {
-		return (String[] p, IUser u, IChannel ch) -> {
+		return (String[] p, IMessage m) -> {
 			if (p.length <= 0 || p[0] == null) {
-				final boolean admin = AutomodUtil.isAdmin(u, ch.getGuild());
+				final boolean admin = AutomodUtil.isAdmin(m.getAuthor(), m
+				        .getChannel().getGuild());
 				final StringBuilder sb = new StringBuilder(
 				        "Available Commands: \n");
 				int iteration = 0;
@@ -90,7 +91,9 @@ public interface StringCommand extends InteractiveCommand {
 			}
 			final Command c = CommandHandler.getCommand(p[0]);
 			if (c == null) { return c + " is not a valid command."; }
-			return c.getHelpText();
+			return c.getHelpText()
+			        + (c.isAdminCommand() ? "\n*This is an admin-only command*"
+			                : "");
 		};
 	}
 }

@@ -26,9 +26,6 @@ public class MessageListener implements IListener<MessageReceivedEvent> {
 	public void handle(MessageReceivedEvent event) {
 		try {
 			String message = event.getMessage().getContent();
-			System.out.println(event.getMessage().getAuthor().getName()
-			        + " via " + event.getMessage().getChannel().getName()
-			        + ": " + message);
 			if (event.getMessage().getChannel().isPrivate()
 			        && event.getMessage().getAuthor().getID().equals(liavt)) {
 				if (message.startsWith("!set")) {

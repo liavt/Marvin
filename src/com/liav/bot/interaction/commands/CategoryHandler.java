@@ -107,9 +107,7 @@ public class CategoryHandler {
 	 */
 	public static Category getCategory(String name) {
 		for (Category c : categories) {
-			if (c.getName().equalsIgnoreCase(name)) {
-				return c;
-			}
+			if (c.getName().equalsIgnoreCase(name)) { return c; }
 		}
 		return null;
 	}

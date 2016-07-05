@@ -93,6 +93,20 @@ public class Bot {
 	}
 
 	/**
+	 * Make the bot appear typing based on a boolean
+	 * 
+	 * @param t
+	 *            Whether the bot should be typing
+	 * @param c
+	 *            Which channel the bot should be typing on.
+	 */
+	public static void setTyping(boolean t, IChannel c) {
+		if (c.getTypingStatus() != t) {
+			c.toggleTypingStatus();
+		}
+	}
+
+	/**
 	 * Sends a message with the bot's {@link IDiscordClient client} on a
 	 * specified channel.
 	 * 
@@ -118,6 +132,7 @@ public class Bot {
 	        sendMessage(String message, boolean tts, IChannel channel)
 	                throws HTTP429Exception, DiscordException,
 	                MissingPermissionsException {
+		setTyping(true, channel);
 		if (!message.equals("") && !message.equals(" ")) {
 			final MessageBuilder mb = new MessageBuilder(getClient())
 			        .withChannel(channel).withContent(message);
@@ -126,6 +141,15 @@ public class Bot {
 			}
 			mb.build();
 		}
+		setTyping(false, channel);
+	}
+
+	public static void reply(IMessage first, String message)
+	        throws MissingPermissionsException, HTTP429Exception,
+	        DiscordException {
+		setTyping(true, first.getChannel());
+		first.reply(message);
+		setTyping(false, first.getChannel());
 	}
 
 	/**

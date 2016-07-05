@@ -1,8 +1,12 @@
 package com.liav.bot.interaction.commands;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import sx.blah.discord.handle.obj.IMessage;
 
 import com.liav.bot.main.Bot;
+import com.liav.bot.util.AutomodUtil;
 import com.liav.bot.util.storage.CommandStorage;
 
 /**
@@ -14,6 +18,11 @@ import com.liav.bot.util.storage.CommandStorage;
 public final class CommandHandler {
 	private CommandHandler() {
 	}
+
+	/**
+	 * Used to execute tasks
+	 */
+	private static final ExecutorService exe = Executors.newCachedThreadPool();
 
 	/**
 	 * Finds the specified {@link Command} in {@link CommandStorage#commands}
@@ -59,29 +68,45 @@ public final class CommandHandler {
 	 *            The message sent to the bot with the specified command.
 	 */
 	public static void executeCommand(int offset, IMessage m) {
-		try {
-			m.getChannel().toggleTypingStatus();
-			Bot.incrementCommands();
-			final String command = m.getContent();
-			final String[] split = command.substring(offset).split(" ");
-			String[] param = new String[split.length > 1 ? split.length - 1 : 0];
-			if (split.length > 1) {
-				System.arraycopy(split, 1, param, 0, param.length);
+		final Thread thread = new Thread(() -> {
+			try {
+
+				final String command = m.getContent();
+				final String[] split = command.substring(offset).split(" ");
+				String[] param = new String[split.length > 1 ? split.length - 1
+				        : 0];
+				if (split.length > 1) {
+					System.arraycopy(split, 1, param, 0, param.length);
+				}
+				final Command c = getCommand(split[0]);
+				if (c == null) { return; }
+				if ((c.isAdminCommand() && AutomodUtil.isAdmin(m.getAuthor(), m
+				        .getChannel().getGuild()))
+				        || !c.isAdminCommand()) {
+					Bot.setTyping(true, m.getChannel());
+					Bot.incrementCommands();
+					System.out.println("Executing command: " + split[0]);
+					final String reply = c.execute(param, m);
+					if (reply != null && !reply.equals("")) {
+						if (!c.isTTS()) {
+							Bot.reply(m, reply);
+						} else {
+							Bot.sendMessage(reply, c.isTTS(), m.getChannel());
+						}
+					}
+				} else {
+					Bot.sendMessage("Must be an admin to use this command!",
+					        false, m.getChannel());
+				}
+
+				Bot.setTyping(false, m.getChannel());
+			} catch (Throwable t) {
+				Bot.setTyping(false, m.getChannel());
+				t.printStackTrace();
+				Bot.incrementError();
 			}
-			final Command c = getCommand(split[0]);
-			if (c == null) { return; }
-			System.out.println("Executing command: " + split[0]);
-			final String reply = c
-			        .execute(param, m.getAuthor(), m.getChannel());
-			if (!c.isTTS()) {
-				m.reply(reply);
-			} else {
-				Bot.sendMessage(reply, c.isTTS(), m.getChannel());
-			}
-			m.getChannel().toggleTypingStatus();
-		} catch (Throwable t) {
-			t.printStackTrace();
-			Bot.incrementError();
-		}
+		});
+		thread.setDaemon(true);
+		exe.execute(thread);
 	}
 }

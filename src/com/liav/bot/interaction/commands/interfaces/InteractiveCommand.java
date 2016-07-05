@@ -1,6 +1,6 @@
 package com.liav.bot.interaction.commands.interfaces;
 
-import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 
 import com.liav.bot.interaction.commands.Command;
@@ -34,7 +34,7 @@ public interface InteractiveCommand extends AdvancedCommand {
 	String action(final String[] param, final IUser u);
 
 	@Override
-	default String action(final String[] param, final IUser u, IChannel c) {
-		return action(param, u);
+	default String action(final String[] param, final IMessage m) {
+		return action(param, m.getAuthor());
 	}
 }
