@@ -1,15 +1,18 @@
 package com.liav.bot.util;
 
+import java.util.EnumSet;
 import java.util.List;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import com.liav.bot.main.Bot;
-
 import sx.blah.discord.handle.obj.IGuild;
+import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.handle.obj.Permissions;
+
+import com.liav.bot.main.Bot;
 
 /**
  * Class with various static helper functions used throughout the bot.
@@ -32,7 +35,8 @@ public final class AutomodUtil {
 	public static String timeToString(int time) {
 		String message = "";
 		if (time > 60) {
-			int minutes = (int) Math.floor(time / 60), seconds = time - (minutes * 60);
+			int minutes = (int) Math.floor(time / 60), seconds = time
+			        - (minutes * 60);
 			if (minutes > 60) {
 				int hours = (int) Math.floor(minutes / 60);
 				if (hours > 24) {
@@ -80,9 +84,8 @@ public final class AutomodUtil {
 		final List<IGuild> current = Bot.getClient().getGuilds();
 		for (IGuild g : current) {
 			for (IUser u : g.getUsers()) {
-				if (u.getName().equals(s) || u.getID().equals(s) || ("<@" + u.getID() + ">").equals(s)) {
-					return u;
-				}
+				if (u.getName().equals(s) || u.getID().equals(s)
+				        || ("<@" + u.getID() + ">").equals(s)) { return u; }
 			}
 		}
 		return null;
@@ -106,4 +109,14 @@ public final class AutomodUtil {
 		return result;
 	}
 
+	public static boolean isAdmin(IUser i, IGuild g) {
+		final List<IRole> l = i.getRolesForGuild(g);
+		for (IRole r : l) {
+			final EnumSet<Permissions> e = r.getPermissions();
+			for (Permissions p : e) {
+				if (p.hasPermission(Permissions.MANAGE_SERVER.ordinal())) { return true; }
+			}
+		}
+		return false;
+	}
 }
