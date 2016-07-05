@@ -19,4 +19,4 @@ Aliens come and abduct %U%
 %U% wants !succ to be a command
 %U% wanted a chance to change his fate
 %U% had a chance to change their fate, and didn\'t
-%U% didn't use their ult at the right time and lost the game for everyone
+%U% didn\'t use their ult at the right time and lost the game for everyone
