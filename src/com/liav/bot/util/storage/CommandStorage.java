@@ -21,6 +21,8 @@ import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.util.DiscordException;
+import sx.blah.discord.util.HTTP429Exception;
+import sx.blah.discord.util.MissingPermissionsException;
 
 import com.liav.bot.interaction.commands.CategoryHandler;
 import com.liav.bot.interaction.commands.CategoryHandler.Category;
@@ -431,8 +433,9 @@ public final class CommandStorage {
 			                Elements media = doc.select("img");
 
 			                for (Element src : media) {
-				                if (src.tagName().equals("img"))  
-				                	strings.add(src.attr("src").toString().replace("//",""));
+				                if (src.tagName().equals("img")) strings
+				                        .add(src.attr("src").toString()
+				                                .replace("//", ""));
 			                }
 
 		                } catch (Exception e) {
@@ -443,7 +446,30 @@ public final class CommandStorage {
 		                        .size()]);
 		                int rnd = new Random().nextInt(array.length);
 		                finRes = (array[rnd]);
-		                return finRes;
+
+		                try {
+			                c.sendFile(new File(new URI(finRes)));
+		                } catch (HTTP429Exception e1) {
+			                Bot.incrementError();
+			                e1.printStackTrace();
+			                return "Too many requests have been made! Try again later.";
+		                } catch (DiscordException e) {
+			                Bot.incrementError();
+			                e.printStackTrace();
+			                return "An error in Discord happened.";
+		                } catch (IOException e) {
+			                Bot.incrementError();
+			                e.printStackTrace();
+			                return "Error reading from Imgur!";
+		                } catch (MissingPermissionsException e) {
+			                return finRes;// send it through url, not directly
+		                } catch (Throwable e) {
+			                Bot.incrementError();
+			                e.printStackTrace();
+			                return "An error occured.";
+		                }
+
+		                return "";
 	                }),
 	        new Command(
 	                "about",

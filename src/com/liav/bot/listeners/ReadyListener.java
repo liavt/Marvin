@@ -24,8 +24,7 @@ public class ReadyListener implements IListener<ReadyEvent> {
 		try {
 			System.out.println("Preparing...");
 			final IDiscordClient client = event.getClient();
-			client.updatePresence(false,
-			        Optional.of("the important game of moderation"));
+			client.updatePresence(false, Optional.of("poker"));
 			// client.changeUsername("Marvin");
 			client.changeAvatar(Image.forFile(new File("hal.png")));
 			System.out.println("Waiting for connection...");

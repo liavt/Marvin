@@ -29,10 +29,7 @@ public class MessageListener implements IListener<MessageReceivedEvent> {
 			System.out.println(event.getMessage().getAuthor().getName()
 			        + " via " + event.getMessage().getChannel().getName()
 			        + ": " + message);
-			if (message.startsWith("!")) {
-				CommandHandler.executeCommand(1, event.getMessage());
-				// this is so I can talk with it
-			} else if (event.getMessage().getChannel().isPrivate()
+			if (event.getMessage().getChannel().isPrivate()
 			        && event.getMessage().getAuthor().getID().equals(liavt)) {
 				if (message.startsWith("!set")) {
 					final String[] param = message.split(" ");
@@ -42,9 +39,23 @@ public class MessageListener implements IListener<MessageReceivedEvent> {
 					}
 					Bot.setCurrentChannel(Bot.getClient().getChannelByID(
 					        param[1]));
+					Bot.sendMessage("Set speaking channel to "
+					        + param[1]
+					        + " ("
+					        + Bot.getClient().getChannelByID(param[1])
+					                .getName() + ")", event.getMessage()
+					        .getChannel());
 				} else {
+					if (Bot.getCurrentChannel() == null) {
+						Bot.sendMessage("Channel not set!", event.getMessage()
+						        .getChannel());
+					}
 					Bot.sendMessage(message, Bot.getCurrentChannel());
+
 				}
+			} else if (message.startsWith("!")) {
+				CommandHandler.executeCommand(1, event.getMessage());
+				// this is so I can talk with it
 			}
 		} catch (Throwable t) {
 			Bot.incrementError();
