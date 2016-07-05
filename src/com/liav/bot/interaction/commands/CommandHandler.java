@@ -1,9 +1,9 @@
 package com.liav.bot.interaction.commands;
 
+import sx.blah.discord.handle.obj.IMessage;
+
 import com.liav.bot.main.Bot;
 import com.liav.bot.util.storage.CommandStorage;
-
-import sx.blah.discord.handle.obj.IMessage;
 
 /**
  * Static class which handles all {@link Command commands} for the bot.
@@ -26,9 +26,8 @@ public final class CommandHandler {
 	public static Command getCommand(String s) {
 		final Command[] commands = CommandStorage.commands;
 		for (Command c : commands) {
-			if (c.getName().equalsIgnoreCase(s) || (" " + c.getName()).equalsIgnoreCase(s)) {
-				return c;
-			}
+			if (c.getName().equalsIgnoreCase(s)
+			        || (" " + c.getName()).equalsIgnoreCase(s)) { return c; }
 		}
 		return null;
 	}
@@ -61,6 +60,8 @@ public final class CommandHandler {
 	 */
 	public static void executeCommand(int offset, IMessage m) {
 		try {
+			m.getChannel().toggleTypingStatus();
+			Bot.incrementCommands();
 			final String command = m.getContent();
 			final String[] split = command.substring(offset).split(" ");
 			String[] param = new String[split.length > 1 ? split.length - 1 : 0];
@@ -68,17 +69,19 @@ public final class CommandHandler {
 				System.arraycopy(split, 1, param, 0, param.length);
 			}
 			final Command c = getCommand(split[0]);
-			if (c == null) {
-				return;
-			}
+			if (c == null) { return; }
 			System.out.println("Executing command: " + split[0]);
+			final String reply = c
+			        .execute(param, m.getAuthor(), m.getChannel());
 			if (!c.isTTS()) {
-				m.reply(c.execute(param, m.getAuthor()));
+				m.reply(reply);
 			} else {
-				Bot.sendMessage(c.execute(param, m.getAuthor()), c.isTTS(), m.getChannel());
+				Bot.sendMessage(reply, c.isTTS(), m.getChannel());
 			}
+			m.getChannel().toggleTypingStatus();
 		} catch (Throwable t) {
 			t.printStackTrace();
+			Bot.incrementError();
 		}
 	}
 }

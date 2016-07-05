@@ -1,13 +1,14 @@
 package com.liav.bot.interaction.commands;
 
-import com.liav.bot.interaction.commands.CategoryHandler.Category;
-import com.liav.bot.interaction.commands.interfaces.InteractiveCommand;
-import com.liav.bot.interaction.commands.interfaces.StringCommand;
-import com.liav.bot.util.storage.CommandStorage;
-
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.MessageBuilder;
+
+import com.liav.bot.interaction.commands.CategoryHandler.Category;
+import com.liav.bot.interaction.commands.interfaces.AdvancedCommand;
+import com.liav.bot.interaction.commands.interfaces.InteractiveCommand;
+import com.liav.bot.interaction.commands.interfaces.StringCommand;
+import com.liav.bot.util.storage.CommandStorage;
 
 /**
  * Defines a text command for the bot to use. Commands can be send by mentioning
@@ -25,107 +26,12 @@ import sx.blah.discord.util.MessageBuilder;
  * @author Liav
  *
  * @see CommandHandler
- * @see InteractiveCommand
+ * @see AdvancedCommand
  */
 public class Command {
 	private final String name, help, category;
-	private final InteractiveCommand action;
+	private final AdvancedCommand action;
 	private final boolean tts;
-
-	/**
-	 * Returns the name of this command, used in ! or @mention. Additionally,
-	 * this is what shows up in the {@code help} command.
-	 * 
-	 * @return the name
-	 */
-	public String getName() {
-		return name;// the space is because there is always space when
-					// mentioning
-	}
-
-	/**
-	 * The {@link InteractiveCommand} which is executed when the command is run.
-	 * <p>
-	 * <b> It is highly recommended you use {@link #execute(String[], IUser)}
-	 * instead of this.</b>
-	 * 
-	 * @return the action
-	 */
-	public InteractiveCommand getAction() {
-		return action;
-	}
-
-	/**
-	 * Executes this command with the {@link InteractiveCommand} defined in the
-	 * constructor.
-	 * <p>
-	 * If this {@link Command} uses a {@link StringCommand} instead, it will
-	 * automatically overload it.
-	 * 
-	 * @param param
-	 *            The parameters for the command
-	 * @param u
-	 *            The user who executed the command.
-	 * @return The {@code String} to reply to the user with.
-	 */
-	public String execute(String[] param, IUser u) {
-		return action.action(param, u);
-	}
-
-	/**
-	 * Builds the {@link Command Command's} help text for use in the
-	 * {@code help} command.
-	 * 
-	 * @return The help text as specified in the construcotr.
-	 */
-	public String getHelpText() {
-		return tts ? help + "\n*Sends a TTS message*" : help;
-	}
-
-	/**
-	 * Overloading constructor, settings TTS to false, and using a
-	 * {@link StringCommand} instead of an {@link InteractiveCommand}.
-	 * {@link Command Commands} that are purely text based (the only thing it
-	 * does is reply with a message) should use this constructor to save space.
-	 * 
-	 * @param n
-	 *            The name for the command. This is what the {@linkplain IUser}
-	 *            types in to run the command.
-	 * @param h
-	 *            This is the help text that appears when the {@code help}
-	 *            command is used.
-	 * @param cat
-	 *            Name of the category that this command is in.
-	 * @param a
-	 *            The functional interface that gets run when this command is
-	 *            executed. {@link StringCommand#action(String[])} takes in the
-	 *            command parameters.
-	 */
-	public Command(String n, String h, String cat, StringCommand a) {
-		this(n, h, cat, false, a);
-	}
-
-	/**
-	 * Overloading constructor, settings TTS to false
-	 * 
-	 * @param n
-	 *            The name for the command. This is what the {@linkplain IUser}
-	 *            types in to run the command.
-	 * @param h
-	 *            This is the help text that appears when the {@code help}
-	 *            command is used.
-	 * @param cat
-	 *            Name of the category that this command is in.
-	 * @param a
-	 *            The functional interface that gets run when this command is
-	 *            executed. {@link InteractiveCommand#action(String[], IUser)}
-	 *            takes in the command parameters and the user who executed it.
-	 * @see StringCommand
-	 * @see StringCommand#getHelpCommand()
-	 */
-	public Command(String n, String h, String cat, InteractiveCommand a) {
-		this(n, h, cat, false, a);
-	}
 
 	/**
 	 * 
@@ -159,6 +65,178 @@ public class Command {
 	}
 
 	/**
+	 * Returns the name of this command, used in ! or @mention. Additionally,
+	 * this is what shows up in the {@code help} command.
+	 * 
+	 * @return the name
+	 */
+	public String getName() {
+		return name;// the space is because there is always space when
+		            // mentioning
+	}
+
+	/**
+	 * The {@link AdvancedCommand} which is executed when the command is run.
+	 * <p>
+	 * <b> It is highly recommended you use {@link #execute(String[], IUser)}
+	 * instead of this.</b>
+	 * 
+	 * @return the action
+	 */
+	public AdvancedCommand getAction() {
+		return action;
+	}
+
+	/**
+	 * Executes this command with the {@link AdvancedCommand} defined in the
+	 * constructor.
+	 * <p>
+	 * If this {@link Command} uses a {@link StringCommand} instead, it will
+	 * automatically overload it.
+	 * 
+	 * @param param
+	 *            The parameters for the command
+	 * @param u
+	 *            The user who executed the command.
+	 * @return The {@code String} to reply to the user with.
+	 */
+	public String execute(String[] param, IUser u, IChannel c) {
+		return action.action(param, u, c);
+	}
+
+	/**
+	 * Builds the {@link Command Command's} help text for use in the
+	 * {@code help} command.
+	 * 
+	 * @return The help text as specified in the construcotr.
+	 */
+	public String getHelpText() {
+		return tts ? help + "\n*Sends a TTS message*" : help;
+	}
+
+	/**
+	 * Overloading constructor, and using a {@link InteractiveCommand} instead
+	 * of an {@link AdvancedCommand}. {@link Command Commands} that are purely
+	 * text based (the only thing it does is reply with a message) should use
+	 * this constructor to save space.
+	 * 
+	 * @param n
+	 *            The name for the command. This is what the {@linkplain IUser}
+	 *            types in to run the command.
+	 * @param h
+	 *            This is the help text that appears when the {@code help}
+	 *            command is used.
+	 * @param cat
+	 *            Name of the category that this command is in.
+	 * @param tts
+	 *            Whether the response should utilize TTS (Text-To-Speech)
+	 * @param a
+	 *            The functional interface that gets run when this command is
+	 *            executed. {@link StringCommand#action(String[])} takes in the
+	 *            command parameters.
+	 */
+	public Command(
+	        String n, String h, String cat, boolean tts, InteractiveCommand a) {
+		this(n, h, cat, false, (AdvancedCommand) a);// the cast because
+		                                            // otherwise the compiler
+		                                            // doesnt know what
+		                                            // constructor to choose
+	}
+
+	/**
+	 * Overloading constructor, settings TTS to false, and using a
+	 * {@link InteractiveCommand} instead of an {@link AdvancedCommand}.
+	 * {@link Command Commands} that are purely text based (the only thing it
+	 * does is reply with a message) should use this constructor to save space.
+	 * 
+	 * @param n
+	 *            The name for the command. This is what the {@linkplain IUser}
+	 *            types in to run the command.
+	 * @param h
+	 *            This is the help text that appears when the {@code help}
+	 *            command is used.
+	 * @param cat
+	 *            Name of the category that this command is in.
+	 * @param a
+	 *            The functional interface that gets run when this command is
+	 *            executed. {@link StringCommand#action(String[])} takes in the
+	 *            command parameters.
+	 */
+	public Command(String n, String h, String cat, InteractiveCommand a) {
+		this(n, h, cat, false, a);
+	}
+
+	/**
+	 * Overloading constructor, and using a {@link StringCommand} instead of an
+	 * {@link AdvancedCommand}. {@link Command Commands} that are purely text
+	 * based (the only thing it does is reply with a message) should use this
+	 * constructor to save space.
+	 * 
+	 * @param n
+	 *            The name for the command. This is what the {@linkplain IUser}
+	 *            types in to run the command.
+	 * @param h
+	 *            This is the help text that appears when the {@code help}
+	 *            command is used.
+	 * @param cat
+	 *            Name of the category that this command is in.
+	 * @param tts
+	 *            Whether the response should utilize TTS (Text-To-Speech)
+	 * @param a
+	 *            The functional interface that gets run when this command is
+	 *            executed. {@link StringCommand#action(String[])} takes in the
+	 *            command parameters.
+	 */
+	public Command(String n, String h, String cat, boolean tts, StringCommand a) {
+		this(n, h, cat, tts, (AdvancedCommand) a);
+	}
+
+	/**
+	 * Overloading constructor, settings TTS to false, and using a
+	 * {@link StringCommand} instead of an {@link AdvancedCommand}.
+	 * {@link Command Commands} that are purely text based (the only thing it
+	 * does is reply with a message) should use this constructor to save space.
+	 * 
+	 * @param n
+	 *            The name for the command. This is what the {@linkplain IUser}
+	 *            types in to run the command.
+	 * @param h
+	 *            This is the help text that appears when the {@code help}
+	 *            command is used.
+	 * @param cat
+	 *            Name of the category that this command is in.
+	 * @param a
+	 *            The functional interface that gets run when this command is
+	 *            executed. {@link StringCommand#action(String[])} takes in the
+	 *            command parameters.
+	 */
+	public Command(String n, String h, String cat, StringCommand a) {
+		this(n, h, cat, false, a);
+	}
+
+	/**
+	 * Overloading constructor, settings TTS to false
+	 * 
+	 * @param n
+	 *            The name for the command. This is what the {@linkplain IUser}
+	 *            types in to run the command.
+	 * @param h
+	 *            This is the help text that appears when the {@code help}
+	 *            command is used.
+	 * @param cat
+	 *            Name of the category that this command is in.
+	 * @param a
+	 *            The functional interface that gets run when this command is
+	 *            executed. {@link AdvancedCommand#action(String[], IUser)}
+	 *            takes in the command parameters and the user who executed it.
+	 * @see StringCommand
+	 * @see StringCommand#getHelpCommand()
+	 */
+	public Command(String n, String h, String cat, AdvancedCommand a) {
+		this(n, h, cat, false, a);
+	}
+
+	/**
 	 * Default constructor.
 	 * 
 	 * @param n
@@ -174,16 +252,18 @@ public class Command {
 	 *            message. If this is true, the bot will not @mention.
 	 * @param a
 	 *            The functional interface that gets run when this command is
-	 *            executed. {@link InteractiveCommand#action(String[], IUser)}
-	 *            takes in the command parameters and the user who executed it.
-	 *            {@link StringCommand} extends {@code InteractiveCommand,} so
-	 *            it can be used in place here. However, there is also the
+	 *            executed.
+	 *            {@link AdvancedCommand#action(String[], IUser,IChannel)} takes
+	 *            in the command parameters and the user who executed it.
+	 *            {@link StringCommand} extends {@code AdvancedCommand,} so it
+	 *            can be used in place here. However, there is also the
 	 *            overloading constructor
 	 *            {@link Command#Command(String, String, StringCommand)}
 	 * @see StringCommand
 	 * @see StringCommand#getHelpCommand()
 	 */
-	public Command(String n, String h, String cat, boolean tts, InteractiveCommand a) {
+	public Command(
+	        String n, String h, String cat, boolean tts, AdvancedCommand a) {
 		this.name = n;
 		this.action = a;
 		this.help = h;

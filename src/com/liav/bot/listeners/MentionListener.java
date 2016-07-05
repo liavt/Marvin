@@ -28,16 +28,11 @@ public class MentionListener implements IListener<MentionEvent> {
 			if (AutomodUtil.isAdmin(event.getMessage().getAuthor(), event
 			        .getMessage().getGuild())) {
 				System.out.println("Mentioned.");
-				event.getMessage().delete();
-				Bot.sendMessage(
-				        event.getMessage()
-				                .getContent()
-				                .substring(
-				                        event.getMessage().getContent()
-				                                .indexOf(">") + 2), event
-				                .getMessage().getChannel());
+				CommandHandler.executeCommand(event.getMessage().getContent()
+				        .indexOf(">") + 2, event.getMessage());
 			}
 		} catch (Throwable t) {
+			Bot.incrementError();
 			t.printStackTrace();
 		}
 	}

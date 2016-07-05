@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Random;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import javax.script.ScriptException;
@@ -16,6 +17,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.util.DiscordException;
@@ -169,6 +171,7 @@ public final class CommandStorage {
 		                } catch (ScriptException e)
 
 		                {
+			                Bot.incrementError();
 			                return "Invalid expression!";
 		                }
 	                }),
@@ -214,6 +217,7 @@ public final class CommandStorage {
 				                } catch (Throwable t)
 
 				                {
+					                Bot.incrementError();
 					                t.printStackTrace();
 					                return true;
 				                }
@@ -225,9 +229,11 @@ public final class CommandStorage {
 		                DiscordException e)
 
 		                {
+			                Bot.incrementError();
 			                e.printStackTrace();
 			                return "An error in Discord occured.";
 		                } catch (URISyntaxException e) {
+			                Bot.incrementError();
 			                e.printStackTrace();
 			                return "Unknown url";
 		                }
@@ -314,6 +320,7 @@ public final class CommandStorage {
 				                } catch (Throwable t)
 
 				                {
+					                Bot.incrementError();
 					                t.printStackTrace();
 					                return true;
 				                }
@@ -325,12 +332,15 @@ public final class CommandStorage {
 		                DiscordException e)
 
 		                {
+			                Bot.incrementError();
 			                e.printStackTrace();
 			                return "An error in Discord occured.";
 		                } catch (IOException e) {
+			                Bot.incrementError();
 			                e.printStackTrace();
 			                return "Error converting video";
 		                } catch (InterruptedException e) {
+			                Bot.incrementError();
 			                e.printStackTrace();
 			                return "Video conversion interrupted";
 		                }
@@ -407,7 +417,7 @@ public final class CommandStorage {
 	                "succ",
 	                "Usage: succ\n*succ*",
 	                "fun",
-	                (final String[] p, final IUser user) -> {
+	                (final String[] p, final IUser user, IChannel c) -> {
 		                String finRes = "";
 		                Vector<String> strings = new Vector<String>();
 
@@ -426,9 +436,9 @@ public final class CommandStorage {
 			                }
 
 		                } catch (Exception e) {
+			                Bot.incrementError();
 			                System.out.println(e);
 		                }
-
 		                String[] array = strings.toArray(new String[strings
 		                        .size()]);
 		                int rnd = new Random().nextInt(array.length);
@@ -441,5 +451,20 @@ public final class CommandStorage {
 	                "meta",
 	                (final String[] p, final IUser user) -> {
 		                return "Created by Liav Turkia with <3\nSource code at https://www.github.com/liavt/marvin";
+	                }),
+	        new Command(
+	                "uptime",
+	                "Usage: uptime\nSee how long the bot has been running",
+	                "meta",
+	                (final String[] p, final IUser u) -> {
+		                return "Up for "
+		                        + AutomodUtil.timeToString(Integer.parseInt(String
+		                                .format("%d", TimeUnit.MILLISECONDS
+		                                        .toSeconds(System
+		                                                .currentTimeMillis()
+		                                                - Bot.getStartTime()))))
+		                        + "\nWith *" + Bot.getErrors()
+		                        + "* errors and *" + Bot.getCommands()
+		                        + "* commands executed.";
 	                }) };
 }

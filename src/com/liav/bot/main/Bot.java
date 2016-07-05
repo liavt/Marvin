@@ -14,6 +14,8 @@ import sx.blah.discord.util.HTTP429Exception;
 import sx.blah.discord.util.MessageBuilder;
 import sx.blah.discord.util.MissingPermissionsException;
 
+import com.liav.bot.interaction.commands.Command;
+import com.liav.bot.interaction.commands.CommandHandler;
 import com.liav.bot.listeners.MentionListener;
 import com.liav.bot.listeners.MessageListener;
 import com.liav.bot.listeners.ReadyListener;
@@ -126,7 +128,78 @@ public class Bot {
 		}
 	}
 
+	/**
+	 * Get when the bot started
+	 * 
+	 * @return Unix time in milliseconds representing when the bot was launched
+	 */
+	public static long getStartTime() {
+		return startTime;
+	}
+
+	/**
+	 * Get the number of errors executed since the bot was started.
+	 * 
+	 * @return Errors encountered
+	 */
+	public static long getErrors() {
+		return errors;
+	}
+
+	/**
+	 * Get the number of {@linkplain Command commands} executed since the bot
+	 * was started.
+	 * 
+	 * @return Commands executed
+	 * @see CommandHandler
+	 */
+	public static long getCommands() {
+		return commands;
+	}
+
+	/**
+	 * Adds one error. Call this when an error occurs
+	 */
+	public static void incrementError() {
+		errors++;
+	}
+
+	/**
+	 * Adds one executed command for debug purposes. Should only be called by
+	 * {@link CommandHandler}
+	 */
+	public static void incrementCommands() {
+		commands++;
+	}
+
+	private static long startTime;
+	private static long errors, commands;
+
+	private static IChannel currentChannel = null;
+
+	/**
+	 * Get the channel the bot is currently speaking in. Used only by
+	 * {@link MessageListener}
+	 * 
+	 * @return channel specified to speak in
+	 */
+	public static IChannel getCurrentChannel() {
+		return currentChannel;
+	}
+
+	/**
+	 * Set the channel for the bot to speak in. Used only by
+	 * {@link MessageListener}
+	 * 
+	 * @param currentChannel
+	 *            channel you want to bot to speak in
+	 */
+	public static void setCurrentChannel(IChannel currentChannel) {
+		Bot.currentChannel = currentChannel;
+	}
+
 	public static void main(String[] args) throws DiscordException {
+
 		System.out.println("Trying to build...");
 		client = buildClient();
 
@@ -137,5 +210,6 @@ public class Bot {
 		System.out.println("Build complete.");
 		final Executor e = Executors.newFixedThreadPool(1);
 		e.execute(new TaskExecutor());
+		startTime = System.currentTimeMillis();
 	}
 }

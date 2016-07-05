@@ -39,6 +39,7 @@ public final class AutomodUtil {
 			        - (minutes * 60);
 			if (minutes > 60) {
 				int hours = (int) Math.floor(minutes / 60);
+				minutes -= (hours * 60);
 				if (hours > 24) {
 					int days = (int) Math.floor(hours / 24);
 					message += days + " day";
@@ -46,10 +47,7 @@ public final class AutomodUtil {
 						message += "s";
 					}
 					message += ", ";
-					minutes -= (days * 24 * 60);
 					hours -= (days * 24);
-				} else {
-					minutes -= (hours * 60);
 				}
 				message += hours + " hour";
 				if (hours > 1) {

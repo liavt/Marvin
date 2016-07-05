@@ -35,6 +35,7 @@ public class ReadyListener implements IListener<ReadyEvent> {
 			System.out.println("Connected and ready");
 
 		} catch (Throwable e) {
+			Bot.incrementError();
 			e.printStackTrace();
 		}
 	}

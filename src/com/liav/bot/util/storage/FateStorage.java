@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
+import com.liav.bot.main.Bot;
+
 public class FateStorage {
 	public static String[] getFates() {
 		try {
@@ -23,6 +25,7 @@ public class FateStorage {
 				}
 			}
 		} catch (Throwable e) {
+			Bot.incrementError();
 			e.printStackTrace();
 		}
 		return null;

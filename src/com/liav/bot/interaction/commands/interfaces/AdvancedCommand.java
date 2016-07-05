@@ -4,21 +4,11 @@ import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IUser;
 
 import com.liav.bot.interaction.commands.Command;
-import com.liav.bot.interaction.commands.CommandHandler;
 import com.liav.bot.main.Bot;
 import com.liav.bot.util.storage.CommandStorage;
 
-/**
- * Functional interface which is used in the constructor for {@link Command}.
- * Specifies what happens when the command is executed by the user.
- * 
- * @author Liav
- * @see StringCommand
- * @see CommandHandler
- * @see CommandStorage#commands
- */
 @FunctionalInterface
-public interface InteractiveCommand extends AdvancedCommand {
+public interface AdvancedCommand {
 	/**
 	 * Called when the user {@link Command#execute(String[], IUser) executes a
 	 * command} specified in {@link CommandStorage#commands}
@@ -28,13 +18,10 @@ public interface InteractiveCommand extends AdvancedCommand {
 	 *            have a {@code length} of 0.
 	 * @param u
 	 *            The {@link IUser} who executed the command
+	 * @param c
+	 *            The {@link IChannel} the command was done in
 	 * @return The string for the bot to reply with.
 	 * @see Bot#sendMessage
 	 */
-	String action(final String[] param, final IUser u);
-
-	@Override
-	default String action(final String[] param, final IUser u, IChannel c) {
-		return action(param, u);
-	}
+	String action(final String[] param, final IUser u, final IChannel c);
 }
