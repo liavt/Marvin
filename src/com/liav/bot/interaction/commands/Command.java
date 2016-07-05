@@ -31,7 +31,7 @@ import com.liav.bot.util.storage.CommandStorage;
 public class Command {
 	private final String name, help, category;
 	private final AdvancedCommand action;
-	private final boolean tts;
+	private final boolean tts, admin;
 
 	/**
 	 * 
@@ -264,10 +264,45 @@ public class Command {
 	 */
 	public Command(
 	        String n, String h, String cat, boolean tts, AdvancedCommand a) {
+		this(n, h, cat, tts, false, a);
+	}
+
+	/**
+	 * Default constructor.
+	 * 
+	 * @param n
+	 *            The name for the command. This is what the {@linkplain IUser}
+	 *            types in to run the command.
+	 * @param h
+	 *            This is the help text that appears when the {@code help}
+	 *            command is used.
+	 * @param cat
+	 *            Name of the category that this command is in.
+	 * @param tts
+	 *            Whether the command returns with a TTS (text-to-speech)
+	 *            message. If this is true, the bot will not @mention.
+	 * @param admin
+	 *            Whether this command can only be used by admin users
+	 * @param a
+	 *            The functional interface that gets run when this command is
+	 *            executed.
+	 *            {@link AdvancedCommand#action(String[], IUser,IChannel)} takes
+	 *            in the command parameters and the user who executed it.
+	 *            {@link StringCommand} extends {@code AdvancedCommand,} so it
+	 *            can be used in place here. However, there is also the
+	 *            overloading constructor
+	 *            {@link Command#Command(String, String, StringCommand)}
+	 * @see StringCommand
+	 * @see StringCommand#getHelpCommand()
+	 */
+	public Command(
+	        String n, String h, String cat, boolean tts, boolean admin,
+	        AdvancedCommand a) {
 		this.name = n;
 		this.action = a;
 		this.help = h;
 		this.tts = tts;
 		this.category = cat;
+		this.admin = admin;
 	}
 }

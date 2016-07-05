@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Random;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -442,9 +441,9 @@ public final class CommandStorage {
 			                Bot.incrementError();
 			                System.out.println(e);
 		                }
-		                String[] array = strings.toArray(new String[strings
-		                        .size()]);
-		                int rnd = new Random().nextInt(array.length);
+		                final String[] array = strings
+		                        .toArray(new String[strings.size()]);
+		                final int rnd = Bot.random.nextInt(array.length);
 		                finRes = "i.imgur.com/" + (array[rnd]).toString()
 		                        + ".png";
 		                try {
