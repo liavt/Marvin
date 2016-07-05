@@ -430,12 +430,12 @@ public final class CommandStorage {
 			                        .userAgent(
 			                                "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0")
 			                        .timeout(10 * 1000).get();
-			                Elements media = doc.select("img");
+			                Elements media = doc.select("div");
 
 			                for (Element src : media) {
-				                if (src.tagName().equals("img")) strings
-				                        .add(src.attr("src").toString()
-				                                .replace("//", ""));
+
+				                if (src.tagName().equals("post")) strings
+				                        .add(src.attr("id").toString());
 			                }
 
 		                } catch (Exception e) {
@@ -445,8 +445,8 @@ public final class CommandStorage {
 		                String[] array = strings.toArray(new String[strings
 		                        .size()]);
 		                int rnd = new Random().nextInt(array.length);
-		                finRes = (array[rnd]);
-
+		                finRes = "i.imgur.com/" + (array[rnd]).toString()
+		                        + ".png";
 		                try {
 			                c.sendFile(new File(new URI(finRes)));
 		                } catch (HTTP429Exception e1) {
