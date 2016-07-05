@@ -422,17 +422,17 @@ public final class CommandStorage {
 		                Vector<String> strings = new Vector<String>();
 
 		                try {
-			                String googleUrl = "https://www.google.com/search?tbm=isch&q=succ";
+			                String googleUrl = "http://imgur.com/a/B4pQe/hit?scrolled";
 			                Document doc = Jsoup
 			                        .connect(googleUrl)
 			                        .userAgent(
 			                                "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0")
 			                        .timeout(10 * 1000).get();
-			                Elements media = doc.select("[data-src]");
+			                Elements media = doc.select("img");
 
 			                for (Element src : media) {
-				                if (src.tagName().equals("img")) strings
-				                        .add(src.attr("abs:data-src"));
+				                if (src.tagName().equals("img"))  
+				                	strings.add(src.attr("src").toString().replace("//",""));
 			                }
 
 		                } catch (Exception e) {
