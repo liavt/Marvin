@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Pattern;
+import java.util.Random;
+import java.util.Vector;
 
 import javax.script.ScriptException;
 
@@ -20,6 +22,12 @@ import com.liav.bot.interaction.commands.interfaces.StringCommand;
 import com.liav.bot.main.Bot;
 import com.liav.bot.main.tasks.TaskPool;
 import com.liav.bot.util.AutomodUtil;
+
+// S  U  C  C
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  * Static class which contains all the commands for use by the bot. Located here
@@ -397,7 +405,27 @@ public final class CommandStorage {
 	                }),
 	        new Command("succ", "Usage: succ\n*succ*", "fun", (
 	                final String[] p, final IUser user) -> {
-		        return "No";
+	                	String finRes = "";
+				Vector<String> strings = new Vector<String>();
+			
+				try {
+					String googleUrl = "https://www.google.com/search?tbm=isch&q=succ";
+					Document doc = Jsoup.connect(googleUrl).userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0").timeout(10 * 1000).get();
+					Elements media = doc.select("[data-src]");
+	
+				for (Element src : media) {
+					if (src.tagName().equals("img"))
+						strings.add(src.attr("abs:data-src"));
+					}
+
+				} catch (Exception e) {
+					System.out.println(e);
+				}
+
+				String[] array = strings.toArray(new String[strings.size()]);
+				int rnd = new Random().nextInt(array.length);
+				finRes = (array[rnd]);
+			return finRes;
 	        }),
 	        new Command(
 	                "about",
