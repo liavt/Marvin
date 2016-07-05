@@ -435,18 +435,16 @@ public final class CommandStorage {
 				                if (src.className().equals("post")) 
 				                	strings.add(src.attr("id").toString());
 			                }
+			                
+			                final String[] array = strings
+		                        .toArray(new String[strings.size()]);
+		                	final int rnd = Bot.random.nextInt(array.length);
+		                	finRes = "http://i.imgur.com/" + (array[rnd]).toString()
+		                        + ".png";
 
 		                } catch (Exception e) {
 			                Bot.incrementError();
 			                System.out.println(e);
-		                }
-		                final String[] array = strings
-		                        .toArray(new String[strings.size()]);
-		                final int rnd = Bot.random.nextInt(array.length);
-		                finRes = "http://i.imgur.com/" + (array[rnd]).toString()
-		                        + ".png";
-		                try {
-			                c.sendFile(new File(new URI(finRes)));
 		                } catch (HTTP429Exception e1) {
 			                Bot.incrementError();
 			                e1.printStackTrace();
@@ -467,7 +465,7 @@ public final class CommandStorage {
 			                return "An error occured.";
 		                }
 
-		                return "";
+		                return finRes;
 	                }),
 	        new Command(
 	                "about",
