@@ -4,9 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Random;
+import java.util.Vector;
 import java.util.regex.Pattern;
 
 import javax.script.ScriptException;
+
+// S  U  C  C
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.IVoiceChannel;
@@ -395,7 +403,38 @@ public final class CommandStorage {
 		                return fates[Bot.random.nextInt(fates.length)].replace(
 		                        "%U%", u.getName());
 	                }),
+	        new Command(
+	                "succ",
+	                "Usage: succ\n*succ*",
+	                "fun",
+	                (final String[] p, final IUser user) -> {
+		                String finRes = "";
+		                Vector<String> strings = new Vector<String>();
 
+		                try {
+			                String googleUrl = "https://www.google.com/search?tbm=isch&q=succ";
+			                Document doc = Jsoup
+			                        .connect(googleUrl)
+			                        .userAgent(
+			                                "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0")
+			                        .timeout(10 * 1000).get();
+			                Elements media = doc.select("[data-src]");
+
+			                for (Element src : media) {
+				                if (src.tagName().equals("img")) strings
+				                        .add(src.attr("abs:data-src"));
+			                }
+
+		                } catch (Exception e) {
+			                System.out.println(e);
+		                }
+
+		                String[] array = strings.toArray(new String[strings
+		                        .size()]);
+		                int rnd = new Random().nextInt(array.length);
+		                finRes = (array[rnd]);
+		                return finRes;
+	                }),
 	        new Command(
 	                "about",
 	                "Usage: about\nLearn about the bot",
