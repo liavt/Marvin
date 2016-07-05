@@ -395,13 +395,10 @@ public final class CommandStorage {
 		                return fates[Bot.random.nextInt(fates.length)].replace(
 		                        "%U%", u.getName());
 	                }),
-	        new Command("succ", "Usage: succ\n*succ*", "fun", (
-	                final String[] p, final IUser user) -> {
-		        return "No";
-	        }),
+
 	        new Command(
 	                "about",
-	                "Usage: about\nLearn about the about",
+	                "Usage: about\nLearn about the bot",
 	                "meta",
 	                (final String[] p, final IUser user) -> {
 		                return "Created by Liav Turkia with <3\nSource code at https://www.github.com/liavt/marvin";
