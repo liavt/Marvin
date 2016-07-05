@@ -20,8 +20,6 @@ import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.HTTP429Exception;
-import sx.blah.discord.util.MissingPermissionsException;
 
 import com.liav.bot.interaction.commands.CategoryHandler;
 import com.liav.bot.interaction.commands.CategoryHandler.Category;
@@ -423,42 +421,29 @@ public final class CommandStorage {
 		                Vector<String> strings = new Vector<String>();
 
 		                try {
-			                String googleUrl = "http://imgur.com/a/B4pQe/hit?scrolled";
-			                Document doc = Jsoup
+			                final String googleUrl = "http://imgur.com/a/B4pQe/hit?scrolled";
+			                final Document doc = Jsoup
 			                        .connect(googleUrl)
 			                        .userAgent(
 			                                "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0")
 			                        .timeout(10 * 1000).get();
-			                Elements media = doc.select("div");
+			                final Elements media = doc.select("div");
 
-			                for (Element src : media) {
-				                if (src.className().equals("post")) 
-				                	strings.add(src.attr("id").toString());
+			                for (final Element src : media) {
+				                if (src.className().equals("post")) strings
+				                        .add(src.attr("id").toString());
 			                }
-			                
-			                final String[] array = strings
-		                        .toArray(new String[strings.size()]);
-		                	final int rnd = Bot.random.nextInt(array.length);
-		                	finRes = "http://i.imgur.com/" + (array[rnd]).toString()
-		                        + ".png";
 
-		                } catch (Exception e) {
-			                Bot.incrementError();
-			                System.out.println(e);
-		                } catch (HTTP429Exception e1) {
-			                Bot.incrementError();
-			                e1.printStackTrace();
-			                return "Too many requests have been made! Try again later.";
-		                } catch (DiscordException e) {
-			                Bot.incrementError();
-			                e.printStackTrace();
-			                return "An error in Discord happened.";
+			                final String[] array = strings
+			                        .toArray(new String[strings.size()]);
+			                final int rnd = Bot.random.nextInt(array.length);
+			                finRes = "http://i.imgur.com/"
+			                        + (array[rnd]).toString() + ".png";
+
 		                } catch (IOException e) {
 			                Bot.incrementError();
 			                e.printStackTrace();
 			                return "Error reading from Imgur!";
-		                } catch (MissingPermissionsException e) {
-			                return finRes;// send it through url, not directly
 		                } catch (Throwable e) {
 			                Bot.incrementError();
 			                e.printStackTrace();

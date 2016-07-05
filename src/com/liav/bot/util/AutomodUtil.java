@@ -109,10 +109,11 @@ public final class AutomodUtil {
 
 	public static boolean isAdmin(IUser i, IGuild g) {
 		final List<IRole> l = i.getRolesForGuild(g);
+
 		for (IRole r : l) {
 			final EnumSet<Permissions> e = r.getPermissions();
 			for (Permissions p : e) {
-				if (p.hasPermission(Permissions.MANAGE_ROLES.ordinal())) { return true; }
+				if (p.equals(Permissions.MANAGE_ROLES)) { return true; }
 			}
 		}
 		return false;

@@ -71,7 +71,7 @@ public interface StringCommand extends InteractiveCommand {
 					}
 				}
 				if (admin) {
-					sb.append("\nAdmin commands:");
+					sb.append("\nAdmin commands:\n");
 					for (Command c : CommandStorage.commands) {
 						if ((c.isAdminCommand())) {
 							sb.append("**").append(c.getName()).append("**	");

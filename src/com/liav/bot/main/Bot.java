@@ -45,15 +45,15 @@ public class Bot {
 	 * @throws DiscordException
 	 *             if an error occurs logging in
 	 */
-	public static IDiscordClient buildClient() throws DiscordException { // Returns
+	public static IDiscordClient buildClient(String token)
+	        throws DiscordException { // Returns
 		// an
 		// instance
 		// of
 		// the
 		// discord
 		// client
-		final IDiscordClient client = new ClientBuilder().withToken(
-		        "MTY4NzY2MjA2ODAxNzM5Nzc2.Clt2Vw.7EBvun98AsX8stm_cfT2pS4ETgc")
+		final IDiscordClient client = new ClientBuilder().withToken(token)
 		        .login();
 
 		return client;
@@ -201,15 +201,19 @@ public class Bot {
 	public static void main(String[] args) throws DiscordException {
 
 		System.out.println("Trying to build...");
-		client = buildClient();
+		if (args.length != 1) {
+			System.err.println("Must input a bot token!");
+		} else {
+			client = buildClient(args[0]);
 
-		final EventDispatcher dispatcher = client.getDispatcher();
-		dispatcher.registerListener(new ReadyListener());
-		dispatcher.registerListener(new MentionListener());
-		dispatcher.registerListener(new MessageListener());
-		System.out.println("Build complete.");
-		final Executor e = Executors.newFixedThreadPool(1);
-		e.execute(new TaskExecutor());
-		startTime = System.currentTimeMillis();
+			final EventDispatcher dispatcher = client.getDispatcher();
+			dispatcher.registerListener(new ReadyListener());
+			dispatcher.registerListener(new MentionListener());
+			dispatcher.registerListener(new MessageListener());
+			System.out.println("Build complete.");
+			final Executor e = Executors.newFixedThreadPool(1);
+			e.execute(new TaskExecutor());
+			startTime = System.currentTimeMillis();
+		}
 	}
 }
