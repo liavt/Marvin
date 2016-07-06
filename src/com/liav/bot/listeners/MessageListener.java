@@ -26,33 +26,33 @@ public class MessageListener implements IListener<MessageReceivedEvent> {
 	public void handle(MessageReceivedEvent event) {
 		try {
 			String message = event.getMessage().getContent();
+			// this is to let the "owner" of the bot to run it
 			if (event.getMessage().getChannel().isPrivate()
-			        && event.getMessage().getAuthor().getID().equals(liavt)) {
-				if (message.startsWith("!set")) {
+					&& event.getMessage().getAuthor().getID().equals(liavt)) {
+				if (message.startsWith(";set")) {
 					final String[] param = message.split(" ");
 					if (param.length != 2) {
 						Bot.sendMessage("Invalid!", event.getMessage()
-						        .getChannel());
+								.getChannel());
 					}
 					Bot.setCurrentChannel(Bot.getClient().getChannelByID(
-					        param[1]));
+							param[1]));
 					Bot.sendMessage("Set speaking channel to "
-					        + param[1]
-					        + " ("
-					        + Bot.getClient().getChannelByID(param[1])
-					                .getName() + ")", event.getMessage()
-					        .getChannel());
+							+ param[1]
+							+ " ("
+							+ Bot.getClient().getChannelByID(param[1])
+									.getName() + ")", event.getMessage()
+							.getChannel());
 				} else {
 					if (Bot.getCurrentChannel() == null) {
 						Bot.sendMessage("Channel not set!", event.getMessage()
-						        .getChannel());
+								.getChannel());
 					}
 					Bot.sendMessage(message, Bot.getCurrentChannel());
 
 				}
-			} else if (message.startsWith("!")) {
+			} else if (message.startsWith(CommandHandler.getCommandPrefix())) {
 				CommandHandler.executeCommand(1, event.getMessage());
-				// this is so I can talk with it
 			}
 		} catch (Throwable t) {
 			Bot.incrementError();

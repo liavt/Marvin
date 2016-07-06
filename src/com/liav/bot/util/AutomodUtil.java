@@ -12,6 +12,10 @@ import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.Permissions;
 
+import com.google.code.chatterbotapi.ChatterBot;
+import com.google.code.chatterbotapi.ChatterBotFactory;
+import com.google.code.chatterbotapi.ChatterBotSession;
+import com.google.code.chatterbotapi.ChatterBotType;
 import com.liav.bot.main.Bot;
 
 /**
@@ -36,7 +40,7 @@ public final class AutomodUtil {
 		String message = "";
 		if (time > 60) {
 			int minutes = (int) Math.floor(time / 60), seconds = time
-			        - (minutes * 60);
+					- (minutes * 60);
 			if (minutes > 60) {
 				int hours = (int) Math.floor(minutes / 60);
 				minutes -= (hours * 60);
@@ -83,7 +87,7 @@ public final class AutomodUtil {
 		for (IGuild g : current) {
 			for (IUser u : g.getUsers()) {
 				if (u.getName().equals(s) || u.getID().equals(s)
-				        || ("<@" + u.getID() + ">").equals(s)) { return u; }
+						|| ("<@" + u.getID() + ">").equals(s)) { return u; }
 			}
 		}
 		return null;
@@ -107,6 +111,18 @@ public final class AutomodUtil {
 		return result;
 	}
 
+	/**
+	 * Get whether the user is considered an "admin" by the bot
+	 * <p>
+	 * An admin is a {@linkplain IUser} that is able to
+	 * {@link Permissions#MANAGE_ROLES}
+	 * 
+	 * @param i
+	 *            The user to check
+	 * @param g
+	 *            Which guild to check the user's privileges against
+	 * @return Whether the bot is considered an admin.
+	 */
 	public static boolean isAdmin(IUser i, IGuild g) {
 		final List<IRole> l = i.getRolesForGuild(g);
 
@@ -117,5 +133,26 @@ public final class AutomodUtil {
 			}
 		}
 		return false;
+	}
+
+	private static final ChatterBotFactory chatter = new ChatterBotFactory();
+	private static ChatterBot cleverbot;
+	private static ChatterBotSession cleverbotSession;
+
+	/**
+	 * Grab a reponse from the Cleverbot API
+	 * 
+	 * @param s
+	 *            What Cleverbot should respond to
+	 * @return A response from within Cleverbot's API
+	 * @throws Exception
+	 *             In case Cleverbot initialization fails
+	 */
+	public static String getCleverbotResponse(String s) throws Exception {
+		if (cleverbot == null) {
+			cleverbot = chatter.create(ChatterBotType.CLEVERBOT);
+			cleverbotSession = cleverbot.createSession();
+		}
+		return cleverbotSession.think(s);
 	}
 }

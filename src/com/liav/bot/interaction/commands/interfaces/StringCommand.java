@@ -58,9 +58,9 @@ public interface StringCommand extends InteractiveCommand {
 		return (String[] p, IMessage m) -> {
 			if (p.length <= 0 || p[0] == null) {
 				final boolean admin = AutomodUtil.isAdmin(m.getAuthor(), m
-				        .getChannel().getGuild());
+						.getChannel().getGuild());
 				final StringBuilder sb = new StringBuilder(
-				        "Available Commands: \n");
+						"Available Commands: \n");
 				int iteration = 0;
 				for (Command c : CommandStorage.commands) {
 					if ((!c.isAdminCommand())) {
@@ -84,16 +84,16 @@ public interface StringCommand extends InteractiveCommand {
 					}
 				}
 				return sb
-				        .append("\nUse *help [command]* to learn more about a specific command.\n\nThere are ")
-				        .append(CategoryHandler.getCategories().length)
-				        .append(" command categories.\nUse *category* to view them in more detail")
-				        .toString();
+						.append("\nUse `help [command]` to learn more about a specific command.\n\nThere are `")
+						.append(CategoryHandler.getCategories().length)
+						.append("` command categories.\nUse `category` to view them in more detail")
+						.toString();
 			}
 			final Command c = CommandHandler.getCommand(p[0]);
 			if (c == null) { return c + " is not a valid command."; }
 			return c.getHelpText()
-			        + (c.isAdminCommand() ? "\n*This is an admin-only command*"
-			                : "");
+					+ (c.isAdminCommand() ? "\n*This is an admin-only command*"
+							: "");
 		};
 	}
 }

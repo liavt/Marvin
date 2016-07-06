@@ -25,11 +25,23 @@ public class MentionListener implements IListener<MentionEvent> {
 	@Override
 	public void handle(MentionEvent event) {
 		try {
-			if (AutomodUtil.isAdmin(event.getMessage().getAuthor(), event
-			        .getMessage().getGuild())) {
+			Bot.setTyping(true, event.getMessage().getChannel());
+			if (event.getMessage().getContent().startsWith("<")) {
 				System.out.println("Mentioned.");
-				CommandHandler.executeCommand(event.getMessage().getContent()
-				        .indexOf(">") + 2, event.getMessage());
+				final int offset = event.getMessage().getContent().indexOf(">") + 2;
+				final String message = event.getMessage().getContent()
+						.substring(offset);
+				if (message.startsWith(CommandHandler.getCommandPrefix())) {
+					CommandHandler.executeCommand(offset, event.getMessage());
+				} else {
+					Bot.incrementCommands();
+					Bot.reply(event.getMessage(),
+							AutomodUtil.getCleverbotResponse(message));// respond
+																		// with
+																		// a
+																		// clever
+																		// response
+				}
 			}
 		} catch (Throwable t) {
 			Bot.incrementError();

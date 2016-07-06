@@ -1,9 +1,12 @@
 package com.liav.bot.util.storage;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -23,6 +26,9 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.HTTP429Exception;
 import sx.blah.discord.util.MissingPermissionsException;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.liav.bot.interaction.commands.CategoryHandler;
 import com.liav.bot.interaction.commands.CategoryHandler.Category;
 import com.liav.bot.interaction.commands.Command;
@@ -50,486 +56,465 @@ public final class CommandStorage {
 	 * @see CommandHandler
 	 */
 	public final static Command[] commands = {
-	        new Command(
-	                "newfag",
-	                "Usage: newfag\nBe the fag of the new generation with the newfag command",
-	                "fun",
-	                (String[] param) -> {
-		                return "newfag is NOT a command and will NEVER be a command";
-	                }),
-	        new Command(
-	                "roll",
-	                "Usage: roll [*optional* bound]\nImagine rolling the dice. Now imagine not actually rolling a die, but imaginarily rolling it. You will get it",
-	                "math",
-	                (String[] param) -> {
-		                if (param.length <= 0 || param[0] == null) {
-			                return "Rolled " + Bot.random.nextInt();
-		                } else if (param.length > 1) { return "Must specify one number"; }
-		                final int number = Integer.valueOf(param[0]);
-		                if (number <= 0) { return "Invalid number"; }
-		                return "Rolled a " + Bot.random.nextInt(number);
-	                }),
-	        new Command(
-	                "help",
-	                "Usage: help [*optional* command]\nIf you haven't figured it out already:\nExplains a command,or views all commands",
-	                "meta", StringCommand.getHelpCommand()),
-	        new Command(
-	                "pester",
-	                "Usage: pester\nPesters the bot, causing it to respond to you",
-	                "fun", true, (String[] p, IUser u) -> {
-		                return QuoteStorage.alerts[Bot.random
-		                        .nextInt(QuoteStorage.alerts.length - 1)];
-	                }),
-	        new Command(
-	                "annoy",
-	                "Usage: annoy\nAnnoys the bot, causing it to respond to you",
-	                "fun", true, (String[] p, IUser u) -> {
-		                return QuoteStorage.warnings[Bot.random
-		                        .nextInt(QuoteStorage.warnings.length - 1)];
-	                }),
-	        new Command("pleb", "Usage: pleb\nPleb.", "fun",
-	                (String[] param) -> {
-		                return "Glorious pleb.";
-	                }),
-	        new Command("why", "Usage: why\nAsk the bot why it did this.",
-	                "fun", true, (String[] param, IUser u) -> {
-		                return "BECAUSE IT\'S THE FINAL COUNTDOWN";
-	                }),
-	        new Command("how", "Usage: pleb\nAsk the bot how it got here",
-	                "fun", true, (String[] param, IUser u) -> {
-		                return "With slave labor, of course.";
-	                }),
-	        new Command("when", "Usage: when\nAsk the bot when it will stop.",
-	                "fun", true, (String[] param, IUser u) -> {
-		                return "AFTER 10,000 YEARS";
-	                }),
-	        new Command("where",
-	                "Usage: where\nAsk the bot where it is located.", "fun",
-	                true, (String[] param, IUser u) -> {
-		                return "Over the rainbow.";
-	                }),
-	        new Command(
-	                "hack",
-	                "Usage: hack [player]\nHax0rs someone",
-	                "fun",
-	                (String[] param) -> {
-		                if (param.length <= 0 || param[0] == null) { return "Must specify a player to hack"; }
-		                final StringBuilder sb = new StringBuilder();
-		                final IUser u = AutomodUtil.getUser(param[0]);
-		                if (u == null) { return param[0]
-		                        + " cannot be hacked, as "
-		                        + param[0]
-		                        + " couldn\'t be found in the triangulating mainframe."; }
-		                final String id = u.getID();
-		                sb.append("Succesfully hacked ").append(u.getName())
-		                        .append(". Results are as followed: ")
-		                        .append("\n");
-		                sb.append(
-		                        AutomodUtil.timeToString((int) Long
-		                                .parseLong(id.substring(0, 7))))
-		                        .append(" of porn").append("\n");
-		                sb.append(
-		                        AutomodUtil.timeToString((int) Long
-		                                .parseLong(id.substring(8, 15))))
-		                        .append(" of dank memes,").append("\n");
-		                sb.append(
-		                        AutomodUtil.timeToString((int) Long
-		                                .parseLong(id.substring(5, 10))))
-		                        .append(" of sex tapes,").append("\n");
-		                sb.append("$")
-		                        .append((int) Long.parseLong(id.substring(3, 6)))
-		                        .append(" stolen,").append("\nAnd ");
-		                sb.append((int) Long.parseLong(id.substring(15, 16)))
-		                        .append(" hot singles in ").append(u.getName())
-		                        .append("\'s area").append("\n");
-		                return sb.toString();
-	                }),
-	        new Command(
-	                "eval",
-	                "Usage: eval [expression]\nCalculates a mathmatical expression for you.",
-	                "math",
-	                (final String[] param) -> {
-		                if (param.length == 0) { return "Must specify a mathmatical expression"; }
-		                final StringBuilder sb = new StringBuilder();
-		                for (final String s : param) {
-			                // make sure that they aren't inserting any
-			                // javascript functions (that would be very bad.)
-			                // You can't really do anything without letters
-			                if (Pattern
-			                        .matches(
-			                                "([0-9]|\\.|\\+|\\^|\\-|/|\\%|\\*|\\=|\\(|\\))+",
-			                                s)) {
-				                sb.append(s);
-			                } else {
-				                return "Can only use numbers and mathmatical operations";
-			                }
-		                }
-		                try {
-			                return sb.toString()
-			                        + " evaluates to "
-			                        + AutomodUtil.evaluateExpression(sb
-			                                .toString());
-		                } catch (ScriptException e)
+			new Command(
+					"newfag",
+					"Usage: `newfag`\nBe the fag of the new generation with the newfag command",
+					"fun",
+					(String[] param) -> {
+						return "newfag is NOT a command and will NEVER be a command";
+					}),
+			new Command(
+					"roll",
+					"Usage: `roll [*optional* bound]`\nImagine rolling the dice. Now imagine not actually rolling a die, but imaginarily rolling it. You will get it",
+					"math",
+					(String[] param) -> {
+						if (param.length <= 0 || param[0] == null) {
+							return "Rolled " + Bot.random.nextInt();
+						} else if (param.length > 1) { return "Must specify one number"; }
+						final int number = Integer.valueOf(param[0]);
+						if (number <= 0) { return "Invalid number"; }
+						return "Rolled a `" + Bot.random.nextInt(number)
+								+ "` out of `" + param[0] + "`";
+					}),
+			new Command(
+					"help",
+					"Usage: `help [*optional* command]`\nIf you haven't figured it out already:\nExplains a command,or views all commands",
+					"meta", StringCommand.getHelpCommand()),
+			new Command(
+					"pester",
+					"Usage: `pester`\nPesters the bot, causing it to respond to you",
+					"fun", true, (String[] p, IUser u) -> {
+						return QuoteStorage.alerts[Bot.random
+								.nextInt(QuoteStorage.alerts.length - 1)];
+					}),
+			new Command(
+					"annoy",
+					"Usage: `annoy`\nAnnoys the bot, causing it to respond to you",
+					"fun", true, (String[] p, IUser u) -> {
+						return QuoteStorage.warnings[Bot.random
+								.nextInt(QuoteStorage.warnings.length - 1)];
+					}),
+			new Command("pleb", "Usage: `pleb`\nPleb.", "fun",
+					(String[] param) -> {
+						return "Glorious pleb.";
+					}),
+			new Command("why", "Usage: `why`\nAsk the bot why it did this.",
+					"fun", true, (String[] param, IUser u) -> {
+						return "BECAUSE IT\'S THE FINAL COUNTDOWN";
+					}),
+			new Command("how", "Usage: `how`\nAsk the bot how it got here",
+					"fun", true, (String[] param, IUser u) -> {
+						return "With slave labor, of course.";
+					}),
+			new Command("when",
+					"Usage: `when`\nAsk the bot when it will stop.", "fun",
+					true, (String[] param, IUser u) -> {
+						return "AFTER 10,000 YEARS";
+					}),
+			new Command("where",
+					"Usage: `where`\nAsk the bot where it is located.", "fun",
+					true, (String[] param, IUser u) -> {
+						return "Over the rainbow.";
+					}),
+			new Command(
+					"hack",
+					"Usage: `hack [player]`\nHax0rs someone",
+					"fun",
+					(String[] param) -> {
+						if (param.length <= 0 || param[0] == null) { return "Must specify a player to hack"; }
+						final StringBuilder sb = new StringBuilder();
+						final IUser u = AutomodUtil.getUser(param[0]);
+						if (u == null) { return param[0]
+								+ " cannot be hacked, as "
+								+ param[0]
+								+ " couldn\'t be found in the triangulating mainframe."; }
+						final String id = u.getID();
+						sb.append("Succesfully hacked ").append(u.getName())
+								.append(". Results are as followed: ")
+								.append("\n`");
+						sb.append(
+								AutomodUtil.timeToString((int) Long
+										.parseLong(id.substring(0, 7))))
+								.append("` of porn").append("\n`");
+						sb.append(
+								AutomodUtil.timeToString((int) Long
+										.parseLong(id.substring(8, 15))))
+								.append("` of dank memes,").append("\n`");
+						sb.append(
+								AutomodUtil.timeToString((int) Long
+										.parseLong(id.substring(5, 10))))
+								.append("` of sex tapes,").append("\n`");
+						sb.append("$")
+								.append((int) Long.parseLong(id.substring(3, 6)))
+								.append("` stolen,").append("\nAnd `");
+						sb.append((int) Long.parseLong(id.substring(15, 16)))
+								.append("` hot singles in ")
+								.append(u.getName()).append("\'s area")
+								.append("\n");
+						return sb.toString();
+					}),
+			new Command(
+					"eval",
+					"Usage: `eval [expression]`\nCalculates a mathmatical expression for you.",
+					"math",
+					(final String[] param) -> {
+						if (param.length == 0) { return "Must specify a mathmatical expression"; }
+						final StringBuilder sb = new StringBuilder();
+						for (final String s : param) {
+							// make sure that they aren't inserting any
+							// javascript functions (that would be very bad.)
+							// You can't really do anything without letters
+							if (Pattern
+									.matches(
+											"([0-9]|\\.|\\+|\\^|\\-|/|\\%|\\*|\\=|\\(|\\))+",
+											s)) {
+								sb.append(s);
+							} else {
+								return "Can only use numbers and mathmatical operations";
+							}
+						}
+						try {
+							return sb.toString()
+									+ " evaluates to `"
+									+ AutomodUtil.evaluateExpression(sb
+											.toString()) + "`";
+						} catch (ScriptException e)
 
-		                {
-			                Bot.incrementError();
-			                return "Invalid expression!";
-		                }
-	                }),
-	        new Command(
-	                "stream",
-	                "Usage: stream [url]\nPlays the specified .mp3 from url.\nFor video streaming sites like youtube, use !play instead.\nOnly works when you are in a voice channel",
-	                "util",
-	                (String[] param, IUser u) -> {
-		                if (param.length <= 0 || param[0] == null) { return "Must specify a url"; }
+						{
+							Bot.incrementError();
+							return "Invalid expression!";
+						}
+					}),
+			new Command(
+					"stream",
+					"Usage: `stream [url]`\nPlays the specified .mp3 from url.\nOnly works when you are in a voice channel",
+					"util",
+					(String[] param, IUser u) -> {
+						if (param.length <= 0 || param[0] == null) { return "Must specify a url"; }
 
-		                final IVoiceChannel ch = u.getVoiceChannel()
-		                        .isPresent() ? u.getVoiceChannel().get() : null;
-		                if (ch == null)
+						final IVoiceChannel ch = u.getVoiceChannel()
+								.isPresent() ? u.getVoiceChannel().get() : null;
+						if (ch == null)
 
-		                { return "Must be in a voice channel"; }
-		                try
+						{ return "Must be in a voice channel"; }
+						try
 
-		                {
-			                final URI uri = new URI(param[0]);
-			                if (!uri.getScheme().equals("https")) { return "Scheme/protocol must be https, not "
-			                        + uri.getScheme() + "."; }
-			                ch.join();
-			                ch.getAudioChannel().queueUrl(param[0]);
-			                TaskPool.addTask(() -> {
-				                try {
-					                if (ch.getAudioChannel().getQueueSize() <= 0) {// meaning
-						                                                           // that
-						                                                           // there
-						                                                           // are
-						                                                           // no
-						                                                           // more
-						                                                           // sounds
-						                                                           // left
-						                                                           // to
-						                                                           // play.
-						                                                           // we
-						                                                           // can
-						                                                           // now
-						                                                           // leave.
-						                ch.leave();
-						                return true;
-					                }
-				                } catch (Throwable t)
+						{
+							final URI uri = new URI(param[0]);
+							if (!uri.getScheme().equals("https")) { return "Scheme/protocol must be https, not "
+									+ uri.getScheme() + "."; }
+							ch.join();
+							while (!ch.isConnected()) {
+							}
+							ch.getAudioChannel().queueUrl(param[0]);
+							// TaskPool.addTask(() -> {
+							// try {
+							// if (ch.getAudioChannel().getQueueSize() <= 0) {//
+							// meaning
+							// // that
+							// // there
+							// // are
+							// // no
+							// // more
+							// // sounds
+							// // left
+							// // to
+							// // play.
+							// // we
+							// // can
+							// // now
+							// // leave.
+							// ch.leave();
+							// return true;
+							// }
+							// } catch (Throwable t)
+							//
+							// {
+							// Bot.incrementError();
+							// t.printStackTrace();
+							// return true;
+							// }
+							// return false;
+							// });
+							// ch.leave();
+						} catch (
 
-				                {
-					                Bot.incrementError();
-					                t.printStackTrace();
-					                return true;
-				                }
-				                return false;
-			                });
-			                // ch.leave();
-		                } catch (
+						DiscordException e)
 
-		                DiscordException e)
+						{
+							Bot.incrementError();
+							e.printStackTrace();
+							return "An error in Discord occured.";
+						} catch (URISyntaxException e) {
+							Bot.incrementError();
+							e.printStackTrace();
+							return "Unknown url";
+						}
+						return "playing " + param[0] + " in " + ch.getName();
+					}),
+			new Command(
+					"category",
+					"Usage: `category [*optional* category name]`\nLists all command categories, or shows all commands in a specified category",
+					"meta",
+					(final String[] param) -> {
+						final StringBuilder sb = new StringBuilder();
+						if (param.length <= 0) {
+							final Category[] cats = CategoryHandler
+									.getCategories();
+							int iterator = 0;
+							sb.append("Command Categories: \n");
+							for (final Category c : cats) {
+								iterator++;
+								sb.append("**")
+										.append(c.getName())
+										.append(" (")
+										.append(c.getCommands().length)
+										.append(" command")
+										.append(c.getCommands().length == 1 ? ""
+												: "s")
+										/* for plurals */.append(")**	");
+								// allow 5 names per line
+								if (iterator % 5 == 0) {
+									sb.append("\n");
+								}
+							}
+							sb.append("\nUse `category [name]` to view all commands in a certain category ");
+						} else if (param.length >= 2) {
+							return "Can only have one parameter. Refer to `help category` for more.";
+						} else {
+							final Category c = CategoryHandler
+									.getCategory(param[0]);
+							if (c == null) { return "Invalid category"; }
+							sb.append("Commands in category ")
+									.append(c.getName()).append(":\n**");
+							int iterator = 0;
+							for (final Command com : c.getCommands()) {
+								sb.append(com.getName()).append("	");
+								iterator++;
+								if (iterator % 8 == 0) {
+									sb.append("\n");
+								}
+							}
+							sb.append("**");
+						}
+						return sb.toString();
+					}),
+			new Command(
+					"fate",
+					"Usage: `fate [*optional* player]`\nTells the fate of a person.",
+					"fun",
+					(final String[] p, final IUser user) -> {
+						final IUser u;
+						if (p.length >= 1) {
+							u = AutomodUtil.getUser(p[0]);
+						} else {
+							u = user;
+						}
+						final String[] fates = FateStorage.getFates();
+						if (fates == null) { return "Error retrieving list of fates."; }
+						return fates[Bot.random.nextInt(fates.length)].replace(
+								"%U%", u.getName());
+					}),
+			new Command(
+					"succ",
+					"Usage: `succ`\n*succ*",
+					"fun",
+					(final String[] p, final IUser user) -> {
+						String finRes = "";
+						Vector<String> strings = new Vector<String>();
 
-		                {
-			                Bot.incrementError();
-			                e.printStackTrace();
-			                return "An error in Discord occured.";
-		                } catch (URISyntaxException e) {
-			                Bot.incrementError();
-			                e.printStackTrace();
-			                return "Unknown url";
-		                }
-		                return "playing " + param[0] + " in " + ch.getName();
-	                }),
-	        new Command(
-	                "play",
-	                "Usage: play [url]\nPlays the specified video from url.\nFor straight links to .mp3 use !stream.\nOnly works when you are in a voice channel",
-	                "util",
-	                (String[] param, IUser u) -> {
-		                if (param.length <= 0 || param[0] == null) { return "Must specify a url"; }
-		                // freaking eclipse broke the formatting here
-		                final IVoiceChannel ch = u.getVoiceChannel()
-		                        .isPresent() ? u.getVoiceChannel().get() : null;
-		                if (ch == null)
+						try {
+							final String googleUrl = "http://imgur.com/a/B4pQe/hit?scrolled";
+							final Document doc = Jsoup
+									.connect(googleUrl)
+									.userAgent(
+											"Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0")
+									.timeout(10 * 1000).get();
+							final Elements media = doc.select("div");
 
-		                { return "Must be in a voice channel"; }
-		                try
+							for (final Element src : media) {
+								if (src.className().equals("post")) strings
+										.add(src.attr("id").toString());
+							}
 
-		                {
-			                // so youtube-dl likes to download the recommended
-			                // format (usually ogg or mp4) and doesn't like to
-			                // be consistent.
-			                // when you specify another format, the end video is
-			                // corrupted and can't be read. only problem is,
-			                // discord only supports mp3. so that means that i
-			                // also need to convert it from m4a to mp3. extra
-			                // time and inefficient, but only solution that
-			                // works for now.
-			                final File directory = new File("./lib/output/"), out = new File(
-			                        directory.getAbsolutePath() + "/out.mp3");
-			                File preconversion = new File(directory
-			                        .getAbsolutePath() + "/out.mp3");
-			                if (directory.exists()) {
-				                for (final File f : directory.listFiles()) {
-					                f.delete();
-				                }
-			                }
+							final String[] array = strings
+									.toArray(new String[strings.size()]);
+							final int rnd = Bot.random.nextInt(array.length);
+							finRes = "http://i.imgur.com/"
+									+ (array[rnd]).toString() + ".png";
 
-			                final ProcessBuilder p = new ProcessBuilder(
-			                        new String[] {
-			                                "lib/youtube-dl.exe",
-			                                "-f",
-			                                "bestaudio[filesize<10m][protocol=https]",
-			                                "--extract-audio", "-o",
-			                                preconversion.getAbsolutePath(),
-			                                param[0] }).inheritIO();
-			                int code = p.start().waitFor();
-			                if (code < 0) { return "Error retrieving video! Are you sure the URL is correct?"; }
+						} catch (IOException e) {
+							Bot.incrementError();
+							e.printStackTrace();
+							return "Error reading from Imgur!";
+						} catch (Throwable e) {
+							Bot.incrementError();
+							e.printStackTrace();
+							return "An error occured.";
+						}
 
-			                for (final File f : directory.listFiles()) {
-				                if (f.getName().startsWith("out")) {
-					                preconversion = f;
-				                }
-			                }
+						return finRes;
+					}),
+			new Command(
+					"about",
+					"Usage: `about`\nLearn about the bot",
+					"meta",
+					(final String[] p, final IUser user) -> {
+						return "Created by Liav Turkia with <3\nSource code at https://www.github.com/liavt/marvin\nTo invite your server, open this link:\nhttps://discordapp.com/oauth2/authorize?client_id=199977541635801088&scope=bot&permissions=271711254";
+					}),
+			new Command(
+					"status",
+					"Usage: `status`\nView uptime, errors, and various debug values",
+					"meta",
+					false,
+					true,
+					(final String[] p, final IUser u) -> {
+						return "Up for `"
+								+ AutomodUtil.timeToString(Integer.parseInt(String
+										.format("%d", TimeUnit.MILLISECONDS
+												.toSeconds(System
+														.currentTimeMillis()
+														- Bot.getStartTime()))))
+								+ "`\nWith `" + Bot.getErrors()
+								+ "` errors and `" + Bot.getCommands()
+								+ "` commands executed."
+								+ "\nCurrent task pool size: `"
+								+ TaskPool.tasks() + "`";
+					}),
+			new Command(
+					"say",
+					"Usage: `say [*optional* -t][phrase]`\nMake the bot say a phrase\n-t makes the message utilize TTS (Text-to-Speech)",
+					"fun",
+					false,
+					true,
+					(final String[] p, final IMessage m) -> {
+						if (p.length < 1) { return "Must have a parameter!"; }
+						try {
+							m.delete();
+						} catch (DiscordException e) {
+							e.printStackTrace();
+							Bot.incrementError();
+							return "An error in Discord occured.";
+						} catch (HTTP429Exception e) {
+							e.printStackTrace();
+							Bot.incrementError();
+							return "Too many requests! Try again later.";
+						} catch (MissingPermissionsException e) {
+							e.printStackTrace();
+							Bot.incrementError();
+						}
 
-			                final ProcessBuilder pb = new ProcessBuilder(
-			                        new String[] { "lib/ffmpeg.exe", "-y",
-			                                "-i",
-			                                preconversion.getAbsolutePath(),
-			                                out.getAbsolutePath() })
-			                        .inheritIO();
-			                code = pb.start().waitFor();
-			                if (code < 0) { return "Error converting video! It may be corrupt."; }
-			                ch.join();
-			                System.out.println("Playing from "
-			                        + out.getAbsolutePath());
-			                ch.getAudioChannel().setVolume(1.5f);
-			                ch.getAudioChannel().queueFile(out);
-			                // // the following line is a beauty of a line,
-			                // // courtesy of java. take that however you wish
-			                // try (final InputStream stream = AudioSystem.class
-			                // .getResourceAsStream(preconversion.getAbsolutePath());
-			                // final InputStream bufstream = new
-			                // BufferedInputStream(stream)) {
-			                // ch.getAudioChannel().queue(AudioSystem.getAudioInputStream(bufstream));
-			                // }
-			                TaskPool.addTask(() -> {
-				                try {
-					                if (ch.getAudioChannel().getQueueSize() < 0) {
-						                ch.leave();
-						                return true;
-					                }
-				                } catch (Throwable t)
+						final boolean tts;
+						if (p[0].equals("-t")) {
+							tts = true;
+						} else tts = false;
+						final StringBuilder sb = new StringBuilder();
+						for (int i = tts ? 1 : 0; i < p.length; i++) {
+							sb.append(p[i]).append(" ");
+						}
 
-				                {
-					                Bot.incrementError();
-					                t.printStackTrace();
-					                return true;
-				                }
-				                return false;
-			                });
-			                // ch.leave();
-		                } catch (
+						try {
+							Bot.sendMessage(sb.toString(), tts, m.getChannel());
+						} catch (DiscordException e) {
+							e.printStackTrace();
+							Bot.incrementError();
+							return "An error in Discord occured.";
+						} catch (HTTP429Exception e) {
+							e.printStackTrace();
+							Bot.incrementError();
+							return "Too many requests! Try again later.";
+						} catch (MissingPermissionsException e) {
+							e.printStackTrace();
+							Bot.incrementError();
+						}
 
-		                DiscordException e)
+						return "";
+					}),
+			new Command("ping", "`Usage: ping`\nPong!", "fun", (
+					final String[] p, final IMessage m) -> {
+				return "Pong!";
+			}),
+			new Command("pong",
+					"`Usage: pong`\nWhen ping isn't good enough for you",
+					"fun", (final String[] p, final IMessage m) -> {
+						return "Ping?";
+					}),
+			new Command(
+					"clever",
+					"Usage: `clever [phrase]`\nTalk to Cleverbot!\nMentioning the bot will have the same effect",
+					"fun", (final String[] p, final IMessage m) -> {
+						if (p.length < 1) { return "Must input a phrase!"; }
+						final StringBuilder sb = new StringBuilder();
+						for (String s : p) {
+							sb.append(s);
+						}
+						try {
+							return AutomodUtil.getCleverbotResponse(sb
+									.toString());
+						} catch (Exception e) {
+							Bot.incrementError();
+							e.printStackTrace();
+							return "An error occured";
+						}
+					}),
+			new Command(
+					"chuck",
+					"Usage: `chuck [*optional* person]`\nGet a Chuck Norris joke\nThe joke will feature a user if specified\n*Jokes from http://www.icndb.com/*",
+					"fun",
+					(final String[] p, final IMessage m) -> {
+						if (p.length > 1) { return "Can only have one person!"; }
+						String arguments = "";
+						if (p.length == 1) {
+							final IUser user = AutomodUtil.getUser(p[0]);
+							if (user == null) return "User doesn't have a name or doesn't exist!";
+							final String name = user.getName();
+							String firstName = "", lastName = "";
+							if (name.contains(" ")) {
+								final String[] split = name.split(" ");
+								firstName = split[0];
+								lastName = split[1];
+							} else {
+								lastName = "Norris";
+								firstName = name;
+							}
+							arguments += "?firstName=" + firstName
+									+ "&lastName=" + lastName;
+						}
+						try {
+							final URL url = new URL(
+									"http://api.icndb.com/jokes/random"
+											+ arguments);
+							final HttpURLConnection request = (HttpURLConnection) url
+									.openConnection();
+							request.connect();
 
-		                {
-			                Bot.incrementError();
-			                e.printStackTrace();
-			                return "An error in Discord occured.";
-		                } catch (IOException e) {
-			                Bot.incrementError();
-			                e.printStackTrace();
-			                return "Error converting video";
-		                } catch (InterruptedException e) {
-			                Bot.incrementError();
-			                e.printStackTrace();
-			                return "Video conversion interrupted";
-		                }
-		                // catch (UnsupportedAudioFileException e) {
-		                // e.printStackTrace();
-		                // return "Video is in a strange format; can't play";
-		                // }
-		                return "playing " + param[0] + " in " + ch.getName();
-	                }),
-	        new Command(
-	                "category",
-	                "Usage: category [*optional* category name]\nLists all command categories, or shows all commands in a specified category",
-	                "meta",
-	                (final String[] param) -> {
-		                final StringBuilder sb = new StringBuilder();
-		                if (param.length <= 0) {
-			                final Category[] cats = CategoryHandler
-			                        .getCategories();
-			                int iterator = 0;
-			                sb.append("Command Categories: \n");
-			                for (final Category c : cats) {
-				                iterator++;
-				                sb.append("**")
-				                        .append(c.getName())
-				                        .append(" (")
-				                        .append(c.getCommands().length)
-				                        .append(" command")
-				                        .append(c.getCommands().length == 1 ? ""
-				                                : "s")
-				                        /* for plurals */.append(")**	");
-				                // allow 5 names per line
-				                if (iterator % 5 == 0) {
-					                sb.append("\n");
-				                }
-			                }
-			                sb.append("\nUse *category [name]* to view all commands in a certain category ");
-		                } else if (param.length >= 2) {
-			                return "Can only have one parameter. Refer to *help category *for more.";
-		                } else {
-			                final Category c = CategoryHandler
-			                        .getCategory(param[0]);
-			                if (c == null) { return "Invalid category"; }
-			                sb.append("Commands in category ")
-			                        .append(c.getName()).append(":\n**");
-			                int iterator = 0;
-			                for (final Command com : c.getCommands()) {
-				                sb.append(com.getName()).append("	");
-				                iterator++;
-				                if (iterator % 8 == 0) {
-					                sb.append("\n");
-				                }
-			                }
-			                sb.append("**");
-		                }
-		                return sb.toString();
-	                }),
-	        new Command(
-	                "fate",
-	                "Usage: fate [*optional* player]\nTells the fate of a person.",
-	                "fun",
-	                (final String[] p, final IUser user) -> {
-		                final IUser u;
-		                if (p.length >= 1) {
-			                u = AutomodUtil.getUser(p[0]);
-		                } else {
-			                u = user;
-		                }
-		                final String[] fates = FateStorage.getFates();
-		                if (fates == null) { return "Error retrieving list of fates."; }
-		                return fates[Bot.random.nextInt(fates.length)].replace(
-		                        "%U%", u.getName());
-	                }),
-	        new Command(
-	                "succ",
-	                "Usage: succ\n*succ*",
-	                "fun",
-	                (final String[] p, final IUser user) -> {
-		                String finRes = "";
-		                Vector<String> strings = new Vector<String>();
-
-		                try {
-			                final String googleUrl = "http://imgur.com/a/B4pQe/hit?scrolled";
-			                final Document doc = Jsoup
-			                        .connect(googleUrl)
-			                        .userAgent(
-			                                "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0")
-			                        .timeout(10 * 1000).get();
-			                final Elements media = doc.select("div");
-
-			                for (final Element src : media) {
-				                if (src.className().equals("post")) strings
-				                        .add(src.attr("id").toString());
-			                }
-
-			                final String[] array = strings
-			                        .toArray(new String[strings.size()]);
-			                final int rnd = Bot.random.nextInt(array.length);
-			                finRes = "http://i.imgur.com/"
-			                        + (array[rnd]).toString() + ".png";
-
-		                } catch (IOException e) {
-			                Bot.incrementError();
-			                e.printStackTrace();
-			                return "Error reading from Imgur!";
-		                } catch (Throwable e) {
-			                Bot.incrementError();
-			                e.printStackTrace();
-			                return "An error occured.";
-		                }
-
-		                return finRes;
-	                }),
-	        new Command(
-	                "about",
-	                "Usage: about\nLearn about the bot",
-	                "meta",
-	                (final String[] p, final IUser user) -> {
-		                return "Created by Liav Turkia with <3\nSource code at https://www.github.com/liavt/marvin";
-	                }),
-	        new Command(
-	                "uptime",
-	                "Usage: uptime\nSee how long the bot has been running",
-	                "meta",
-	                false,
-	                true,
-	                (final String[] p, final IUser u) -> {
-		                return "Up for "
-		                        + AutomodUtil.timeToString(Integer.parseInt(String
-		                                .format("%d", TimeUnit.MILLISECONDS
-		                                        .toSeconds(System
-		                                                .currentTimeMillis()
-		                                                - Bot.getStartTime()))))
-		                        + "\nWith *" + Bot.getErrors()
-		                        + "* errors and *" + Bot.getCommands()
-		                        + "* commands executed.";
-	                }),
-	        new Command(
-	                "say",
-	                "Usage: say [*optional* -t][phrase]\nMake the bot say a phrase\n-t makes the message utilize TTS (Text-to-Speech)",
-	                "fun",
-	                false,
-	                true,
-	                (final String[] p, final IMessage m) -> {
-		                if (p.length < 1) { return "Must have a parameter!"; }
-		                try {
-			                m.delete();
-		                } catch (DiscordException e) {
-			                e.printStackTrace();
-			                Bot.incrementError();
-			                return "An error in Discord occured.";
-		                } catch (HTTP429Exception e) {
-			                e.printStackTrace();
-			                Bot.incrementError();
-			                return "Too many requests! Try again later.";
-		                } catch (MissingPermissionsException e) {
-			                e.printStackTrace();
-			                Bot.incrementError();
-		                }
-
-		                final boolean tts;
-		                if (p[0].equals("-t")) {
-			                tts = true;
-		                } else tts = false;
-		                final StringBuilder sb = new StringBuilder();
-		                for (int i = tts ? 1 : 0; i < p.length; i++) {
-			                sb.append(p[i]).append(" ");
-		                }
-
-		                try {
-			                Bot.sendMessage(sb.toString(), tts, m.getChannel());
-		                } catch (DiscordException e) {
-			                e.printStackTrace();
-			                Bot.incrementError();
-			                return "An error in Discord occured.";
-		                } catch (HTTP429Exception e) {
-			                e.printStackTrace();
-			                Bot.incrementError();
-			                return "Too many requests! Try again later.";
-		                } catch (MissingPermissionsException e) {
-			                e.printStackTrace();
-			                Bot.incrementError();
-		                }
-
-		                return "";
-	                }),
-	        new Command("tasks",
-	                "Usage: tasks\nGet the amount of tasks running", "meta",
-	                false, true, (final String[] p, final IUser u) -> {
-		                return "Current task pool size: " + TaskPool.tasks();
-	                }) };
+							final JsonParser jp = new JsonParser(); // from gson
+							final JsonElement root = jp
+									.parse(new InputStreamReader(
+											(InputStream) request.getContent())); // Convert
+																					// the
+																					// input
+																					// stream
+																					// to
+																					// a
+																					// json
+																					// element
+							final JsonObject rootobj = root.getAsJsonObject(); // May
+																				// be
+																				// an
+																				// array,
+																				// may
+																				// be
+																				// an
+																				// object.
+							return Jsoup.parse(
+									rootobj.getAsJsonObject().get("value")
+											.getAsJsonObject().get("joke")
+											.getAsString()).text();
+						} catch (IOException e) {
+							Bot.incrementError();
+							e.printStackTrace();
+							return "Error reading from joke server!";
+						}
+					}) };
 }

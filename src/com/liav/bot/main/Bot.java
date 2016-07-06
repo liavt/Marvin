@@ -46,7 +46,7 @@ public class Bot {
 	 *             if an error occurs logging in
 	 */
 	public static IDiscordClient buildClient(String token)
-	        throws DiscordException { // Returns
+			throws DiscordException { // Returns
 		// an
 		// instance
 		// of
@@ -54,7 +54,7 @@ public class Bot {
 		// discord
 		// client
 		final IDiscordClient client = new ClientBuilder().withToken(token)
-		        .login();
+				.login();
 
 		return client;
 	}
@@ -87,8 +87,8 @@ public class Bot {
 	 * @see IMessage
 	 */
 	public static void sendMessage(String message, IChannel channel)
-	        throws HTTP429Exception, DiscordException,
-	        MissingPermissionsException {
+			throws HTTP429Exception, DiscordException,
+			MissingPermissionsException {
 		sendMessage(message, false, channel);
 	}
 
@@ -129,13 +129,13 @@ public class Bot {
 	 * @see IMessage
 	 */
 	public static void
-	        sendMessage(String message, boolean tts, IChannel channel)
-	                throws HTTP429Exception, DiscordException,
-	                MissingPermissionsException {
+			sendMessage(String message, boolean tts, IChannel channel)
+					throws HTTP429Exception, DiscordException,
+					MissingPermissionsException {
 		setTyping(true, channel);
 		if (!message.equals("") && !message.equals(" ")) {
 			final MessageBuilder mb = new MessageBuilder(getClient())
-			        .withChannel(channel).withContent(message);
+					.withChannel(channel).withContent(message);
 			if (tts) {
 				mb.withTTS();
 			}
@@ -145,8 +145,8 @@ public class Bot {
 	}
 
 	public static void reply(IMessage first, String message)
-	        throws MissingPermissionsException, HTTP429Exception,
-	        DiscordException {
+			throws MissingPermissionsException, HTTP429Exception,
+			DiscordException {
 		setTyping(true, first.getChannel());
 		first.reply(message);
 		setTyping(false, first.getChannel());
