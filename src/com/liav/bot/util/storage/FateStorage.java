@@ -11,18 +11,13 @@ import com.liav.bot.main.Bot;
 public class FateStorage {
 	public static String[] getFates() {
 		try {
-			final Stream<String> s = Files.lines(Paths.get("fates.txt"));
-			try {
+			try (final Stream<String> s = Files.lines(Paths.get("fates.txt"))) {
 				final ArrayList<String> out = new ArrayList<>();
 				final Iterator<String> i = s.iterator();
 				while (i.hasNext()) {
 					out.add(i.next());
 				}
 				return out.toArray(new String[out.size()]);
-			} finally {
-				if (s != null) {
-					s.close();
-				}
 			}
 		} catch (Throwable e) {
 			Bot.incrementError();

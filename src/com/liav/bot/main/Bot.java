@@ -4,6 +4,13 @@ import java.security.SecureRandom;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import com.liav.bot.interaction.commands.Command;
+import com.liav.bot.interaction.commands.CommandHandler;
+import com.liav.bot.listeners.MentionListener;
+import com.liav.bot.listeners.MessageListener;
+import com.liav.bot.listeners.ReadyListener;
+import com.liav.bot.main.tasks.TaskExecutor;
+
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.EventDispatcher;
 import sx.blah.discord.api.IDiscordClient;
@@ -13,13 +20,6 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.HTTP429Exception;
 import sx.blah.discord.util.MessageBuilder;
 import sx.blah.discord.util.MissingPermissionsException;
-
-import com.liav.bot.interaction.commands.Command;
-import com.liav.bot.interaction.commands.CommandHandler;
-import com.liav.bot.listeners.MentionListener;
-import com.liav.bot.listeners.MessageListener;
-import com.liav.bot.listeners.ReadyListener;
-import com.liav.bot.main.tasks.TaskExecutor;
 
 /**
  * Main class which controls the bot.
@@ -41,20 +41,21 @@ public class Bot {
 	 * Returns the {@link IDiscordClient} associated with the application, and
 	 * logs it in.
 	 * 
+	 * @param token
+	 *            Bot token for the Discord api
+	 * 
 	 * @return The client, logged in with the OAuth2 token.
 	 * @throws DiscordException
 	 *             if an error occurs logging in
 	 */
-	public static IDiscordClient buildClient(String token)
-			throws DiscordException { // Returns
+	public static IDiscordClient buildClient(String token) throws DiscordException { // Returns
 		// an
 		// instance
 		// of
 		// the
 		// discord
 		// client
-		final IDiscordClient client = new ClientBuilder().withToken(token)
-				.login();
+		final IDiscordClient client = new ClientBuilder().withToken(token).login();
 
 		return client;
 	}
@@ -87,8 +88,7 @@ public class Bot {
 	 * @see IMessage
 	 */
 	public static void sendMessage(String message, IChannel channel)
-			throws HTTP429Exception, DiscordException,
-			MissingPermissionsException {
+			throws HTTP429Exception, DiscordException, MissingPermissionsException {
 		sendMessage(message, false, channel);
 	}
 
@@ -124,18 +124,15 @@ public class Bot {
 	 * @throws DiscordException
 	 *             Whether Discord has returned an error message.
 	 * @throws HTTP429Exception
-	 *             Whether there are too many requests sent to this channel. * @see
-	 *             MessageBuilder
+	 *             Whether there are too many requests sent to this channel.
+	 *             * @see MessageBuilder
 	 * @see IMessage
 	 */
-	public static void
-			sendMessage(String message, boolean tts, IChannel channel)
-					throws HTTP429Exception, DiscordException,
-					MissingPermissionsException {
+	public static void sendMessage(String message, boolean tts, IChannel channel)
+			throws HTTP429Exception, DiscordException, MissingPermissionsException {
 		setTyping(true, channel);
 		if (!message.equals("") && !message.equals(" ")) {
-			final MessageBuilder mb = new MessageBuilder(getClient())
-					.withChannel(channel).withContent(message);
+			final MessageBuilder mb = new MessageBuilder(getClient()).withChannel(channel).withContent(message);
 			if (tts) {
 				mb.withTTS();
 			}
@@ -145,8 +142,7 @@ public class Bot {
 	}
 
 	public static void reply(IMessage first, String message)
-			throws MissingPermissionsException, HTTP429Exception,
-			DiscordException {
+			throws MissingPermissionsException, HTTP429Exception, DiscordException {
 		setTyping(true, first.getChannel());
 		first.reply(message);
 		setTyping(false, first.getChannel());

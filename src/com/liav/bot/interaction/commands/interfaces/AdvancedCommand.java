@@ -1,17 +1,16 @@
 package com.liav.bot.interaction.commands.interfaces;
 
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-
 import com.liav.bot.interaction.commands.Command;
 import com.liav.bot.main.Bot;
 import com.liav.bot.util.storage.CommandStorage;
 
+import sx.blah.discord.handle.obj.IMessage;
+
 @FunctionalInterface
 public interface AdvancedCommand {
 	/**
-	 * Called when the user {@link Command#execute(String[], IUser) executes a
-	 * command} specified in {@link CommandStorage#commands}
+	 * Called when the user {@link Command#execute(String[], IMessage) executes
+	 * a command} specified in {@link CommandStorage#commands}
 	 * 
 	 * @param param
 	 *            Parameters for the command. If there are no parameters, will

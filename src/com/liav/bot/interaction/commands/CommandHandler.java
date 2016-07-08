@@ -3,11 +3,11 @@ package com.liav.bot.interaction.commands;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import sx.blah.discord.handle.obj.IMessage;
-
 import com.liav.bot.main.Bot;
 import com.liav.bot.util.AutomodUtil;
 import com.liav.bot.util.storage.CommandStorage;
+
+import sx.blah.discord.handle.obj.IMessage;
 
 /**
  * Static class which handles all {@link Command commands} for the bot.
@@ -24,7 +24,7 @@ public final class CommandHandler {
 	 */
 	private static final ExecutorService exe = Executors.newCachedThreadPool();
 	/**
-	 * @see# getCommandPrefix
+	 * @see #getCommandPrefix
 	 */
 	private static final String prefix = ";";
 
@@ -51,8 +51,9 @@ public final class CommandHandler {
 	public static Command getCommand(String s) {
 		final Command[] commands = CommandStorage.commands;
 		for (Command c : commands) {
-			if (c.getName().equalsIgnoreCase(s)
-					|| (" " + c.getName()).equalsIgnoreCase(s)) { return c; }
+			if (c.getName().equalsIgnoreCase(s) || (" " + c.getName()).equalsIgnoreCase(s)) {
+				return c;
+			}
 		}
 		return null;
 	}
@@ -71,7 +72,7 @@ public final class CommandHandler {
 	/**
 	 * Checks a {@link IMessage message} for a {@link Command}, and if one is
 	 * found,
-	 * {@linkplain Command#execute(String[], sx.blah.discord.handle.obj.IUser)
+	 * {@linkplain Command#execute(String[], sx.blah.discord.handle.obj.IMessage)
 	 * executes it}.
 	 * <p>
 	 * The list of {@code Commands} this pulls from is defined in
@@ -89,15 +90,15 @@ public final class CommandHandler {
 
 				final String command = m.getContent();
 				final String[] split = command.substring(offset).split(" ");
-				String[] param = new String[split.length > 1 ? split.length - 1
-						: 0];
+				String[] param = new String[split.length > 1 ? split.length - 1 : 0];
 				if (split.length > 1) {
 					System.arraycopy(split, 1, param, 0, param.length);
 				}
 				final Command c = getCommand(split[0]);
-				if (c == null) { return; }
-				if ((c.isAdminCommand() && AutomodUtil.isAdmin(m.getAuthor(), m
-						.getChannel().getGuild()))
+				if (c == null) {
+					return;
+				}
+				if ((c.isAdminCommand() && AutomodUtil.isAdmin(m.getAuthor(), m.getChannel().getGuild()))
 						|| !c.isAdminCommand()) {
 					Bot.setTyping(true, m.getChannel());
 					Bot.incrementCommands();
@@ -111,8 +112,7 @@ public final class CommandHandler {
 						}
 					}
 				} else {
-					Bot.sendMessage("Must be an admin to use this command!",
-							false, m.getChannel());
+					Bot.sendMessage("Must be an admin to use this command!", false, m.getChannel());
 				}
 
 				Bot.setTyping(false, m.getChannel());

@@ -1,18 +1,18 @@
 package com.liav.bot.interaction.commands.interfaces;
 
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-
 import com.liav.bot.interaction.commands.CategoryHandler;
 import com.liav.bot.interaction.commands.Command;
 import com.liav.bot.interaction.commands.CommandHandler;
 import com.liav.bot.util.AutomodUtil;
 import com.liav.bot.util.storage.CommandStorage;
 
+import sx.blah.discord.handle.obj.IMessage;
+import sx.blah.discord.handle.obj.IUser;
+
 /**
  * Optional interface of {@link InteractiveCommand} which doesn't require the
  * {@link IUser} parameter to save space. Is overloaded in
- * {@link Command#Command(String,String,StringCommand)}
+ * {@link Command#Command(String,String,String,StringCommand)}
  * <p>
  * Intended to be used for commands which are entirely text based, which don't
  * require the executing user.
@@ -27,13 +27,13 @@ public interface StringCommand extends InteractiveCommand {
 	/**
 	 * Overloads {@link InteractiveCommand#action(String[], IUser)} for
 	 * simplicity's sake. Can be used in
-	 * {@link Command#Command(String, String, StringCommand)}.
+	 * {@link Command#Command(String, String,String, StringCommand)}.
 	 * <p>
 	 * Regardless of what type of {@link InteractiveCommand} you specify in
-	 * {@link Command#Command(String, String, boolean, InteractiveCommand)},
-	 * {@link Command#execute(String[], IUser)} will always work and overload
-	 * everything. Using this {@code interface} requires no extra steps to
-	 * execute the {@link Command}
+	 * {@link Command#Command(String, String, String,boolean,boolean, AdvancedCommand)}
+	 * , {@link Command#execute(String[], IMessage)} will always work and
+	 * overload everything. Using this {@code interface} requires no extra steps
+	 * to execute the {@link Command}
 	 * 
 	 * @param param
 	 *            The parameters of the command
@@ -57,10 +57,8 @@ public interface StringCommand extends InteractiveCommand {
 	public static AdvancedCommand getHelpCommand() {
 		return (String[] p, IMessage m) -> {
 			if (p.length <= 0 || p[0] == null) {
-				final boolean admin = AutomodUtil.isAdmin(m.getAuthor(), m
-						.getChannel().getGuild());
-				final StringBuilder sb = new StringBuilder(
-						"Available Commands: \n");
+				final boolean admin = AutomodUtil.isAdmin(m.getAuthor(), m.getChannel().getGuild());
+				final StringBuilder sb = new StringBuilder("Available Commands: \n");
 				int iteration = 0;
 				for (Command c : CommandStorage.commands) {
 					if ((!c.isAdminCommand())) {
@@ -83,17 +81,15 @@ public interface StringCommand extends InteractiveCommand {
 						}
 					}
 				}
-				return sb
-						.append("\nUse `help [command]` to learn more about a specific command.\n\nThere are `")
+				return sb.append("\nUse `help [command]` to learn more about a specific command.\n\nThere are `")
 						.append(CategoryHandler.getCategories().length)
-						.append("` command categories.\nUse `category` to view them in more detail")
-						.toString();
+						.append("` command categories.\nUse `category` to view them in more detail").toString();
 			}
 			final Command c = CommandHandler.getCommand(p[0]);
-			if (c == null) { return c + " is not a valid command."; }
-			return c.getHelpText()
-					+ (c.isAdminCommand() ? "\n*This is an admin-only command*"
-							: "");
+			if (c == null) {
+				return c + " is not a valid command.";
+			}
+			return c.getHelpText() + (c.isAdminCommand() ? "\n*This is an admin-only command*" : "");
 		};
 	}
 }

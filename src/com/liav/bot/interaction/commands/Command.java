@@ -1,15 +1,15 @@
 package com.liav.bot.interaction.commands;
 
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.MessageBuilder;
-
 import com.liav.bot.interaction.commands.CategoryHandler.Category;
 import com.liav.bot.interaction.commands.interfaces.AdvancedCommand;
 import com.liav.bot.interaction.commands.interfaces.InteractiveCommand;
 import com.liav.bot.interaction.commands.interfaces.StringCommand;
 import com.liav.bot.util.storage.CommandStorage;
+
+import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IMessage;
+import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.util.MessageBuilder;
 
 /**
  * Defines a text command for the bot to use. Commands can be send by mentioning
@@ -82,13 +82,13 @@ public class Command {
 	 */
 	public String getName() {
 		return name;// the space is because there is always space when
-		            // mentioning
+					// mentioning
 	}
 
 	/**
 	 * The {@link AdvancedCommand} which is executed when the command is run.
 	 * <p>
-	 * <b> It is highly recommended you use {@link #execute(String[], IUser)}
+	 * <b> It is highly recommended you use {@link #execute(String[], IMessage)}
 	 * instead of this.</b>
 	 * 
 	 * @return the action
@@ -106,8 +106,8 @@ public class Command {
 	 * 
 	 * @param param
 	 *            The parameters for the command
-	 * @param u
-	 *            The user who executed the command.
+	 * @param m
+	 *            The original message sent
 	 * @return The {@code String} to reply to the user with.
 	 */
 	public String execute(String[] param, IMessage m) {
@@ -147,9 +147,7 @@ public class Command {
 	 *            executed. {@link StringCommand#action(String[])} takes in the
 	 *            command parameters.
 	 */
-	public Command(
-	        String n, String h, String cat, boolean tts, boolean admin,
-	        InteractiveCommand a) {
+	public Command(String n, String h, String cat, boolean tts, boolean admin, InteractiveCommand a) {
 		this(n, h, cat, false, admin, (AdvancedCommand) a);// the cast because
 		// otherwise the compiler
 		// doesnt know what
@@ -177,12 +175,11 @@ public class Command {
 	 *            executed. {@link StringCommand#action(String[])} takes in the
 	 *            command parameters.
 	 */
-	public Command(
-	        String n, String h, String cat, boolean tts, InteractiveCommand a) {
+	public Command(String n, String h, String cat, boolean tts, InteractiveCommand a) {
 		this(n, h, cat, false, (AdvancedCommand) a);// the cast because
-		                                            // otherwise the compiler
-		                                            // doesnt know what
-		                                            // constructor to choose
+													// otherwise the compiler
+													// doesnt know what
+													// constructor to choose
 	}
 
 	/**
@@ -231,9 +228,7 @@ public class Command {
 	 *            executed. {@link StringCommand#action(String[])} takes in the
 	 *            command parameters.
 	 */
-	public Command(
-	        String n, String h, String cat, boolean tts, boolean admin,
-	        StringCommand a) {
+	public Command(String n, String h, String cat, boolean tts, boolean admin, StringCommand a) {
 		this(n, h, cat, tts, admin, (AdvancedCommand) a);
 	}
 
@@ -298,7 +293,7 @@ public class Command {
 	 *            Name of the category that this command is in.
 	 * @param a
 	 *            The functional interface that gets run when this command is
-	 *            executed. {@link AdvancedCommand#action(String[], IUser)}
+	 *            executed. {@link AdvancedCommand#action(String[], IMessage)}
 	 *            takes in the command parameters and the user who executed it.
 	 * @see StringCommand
 	 * @see StringCommand#getHelpCommand()
@@ -323,18 +318,16 @@ public class Command {
 	 *            message. If this is true, the bot will not @mention.
 	 * @param a
 	 *            The functional interface that gets run when this command is
-	 *            executed.
-	 *            {@link AdvancedCommand#action(String[], IUser,IChannel)} takes
-	 *            in the command parameters and the user who executed it.
+	 *            executed. {@link AdvancedCommand#action(String[], IMessage)}
+	 *            takes in the command parameters and the user who executed it.
 	 *            {@link StringCommand} extends {@code AdvancedCommand,} so it
 	 *            can be used in place here. However, there is also the
 	 *            overloading constructor
-	 *            {@link Command#Command(String, String, StringCommand)}
+	 *            {@link Command#Command(String, String, String,StringCommand)}
 	 * @see StringCommand
 	 * @see StringCommand#getHelpCommand()
 	 */
-	public Command(
-	        String n, String h, String cat, boolean tts, AdvancedCommand a) {
+	public Command(String n, String h, String cat, boolean tts, AdvancedCommand a) {
 		this(n, h, cat, tts, false, a);
 	}
 
@@ -356,19 +349,16 @@ public class Command {
 	 *            Whether this command can only be used by admin users
 	 * @param a
 	 *            The functional interface that gets run when this command is
-	 *            executed.
-	 *            {@link AdvancedCommand#action(String[], IUser,IChannel)} takes
-	 *            in the command parameters and the user who executed it.
+	 *            executed. {@link AdvancedCommand#action(String[], IMessage)}
+	 *            takes in the command parameters and the user who executed it.
 	 *            {@link StringCommand} extends {@code AdvancedCommand,} so it
 	 *            can be used in place here. However, there is also the
 	 *            overloading constructor
-	 *            {@link Command#Command(String, String, StringCommand)}
+	 *            {@link Command#Command(String, String,String, StringCommand)}
 	 * @see StringCommand
 	 * @see StringCommand#getHelpCommand()
 	 */
-	public Command(
-	        String n, String h, String cat, boolean tts, boolean admin,
-	        AdvancedCommand a) {
+	public Command(String n, String h, String cat, boolean tts, boolean admin, AdvancedCommand a) {
 		this.name = n;
 		this.action = a;
 		this.help = h;
