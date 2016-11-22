@@ -12,14 +12,14 @@ import com.liav.bot.listeners.ReadyListener;
 import com.liav.bot.main.tasks.TaskExecutor;
 
 import sx.blah.discord.api.ClientBuilder;
-import sx.blah.discord.api.EventDispatcher;
+import sx.blah.discord.api.events.EventDispatcher;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.HTTP429Exception;
 import sx.blah.discord.util.MessageBuilder;
 import sx.blah.discord.util.MissingPermissionsException;
+import sx.blah.discord.util.RateLimitException;
 
 /**
  * Main class which controls the bot.
@@ -82,13 +82,12 @@ public class Bot {
 	 *             messages on the specified channel
 	 * @throws DiscordException
 	 *             Whether Discord has returned an error message.
-	 * @throws HTTP429Exception
+	 * @throws RateLimitException 
 	 *             Whether there are too many requests sent to this channel.
 	 * @see MessageBuilder
 	 * @see IMessage
 	 */
-	public static void sendMessage(String message, IChannel channel)
-			throws HTTP429Exception, DiscordException, MissingPermissionsException {
+	public static void sendMessage(String message, IChannel channel) throws DiscordException, MissingPermissionsException, RateLimitException {
 		sendMessage(message, false, channel);
 	}
 
@@ -123,13 +122,10 @@ public class Bot {
 	 *             messages on the specified channel
 	 * @throws DiscordException
 	 *             Whether Discord has returned an error message.
-	 * @throws HTTP429Exception
-	 *             Whether there are too many requests sent to this channel.
-	 *             * @see MessageBuilder
+	 * @throws RateLimitException 
 	 * @see IMessage
 	 */
-	public static void sendMessage(String message, boolean tts, IChannel channel)
-			throws HTTP429Exception, DiscordException, MissingPermissionsException {
+	public static void sendMessage(String message, boolean tts, IChannel channel) throws DiscordException, MissingPermissionsException, RateLimitException {
 		setTyping(true, channel);
 		if (!message.equals("") && !message.equals(" ")) {
 			final MessageBuilder mb = new MessageBuilder(getClient()).withChannel(channel).withContent(message);
@@ -142,7 +138,7 @@ public class Bot {
 	}
 
 	public static void reply(IMessage first, String message)
-			throws MissingPermissionsException, HTTP429Exception, DiscordException {
+			throws MissingPermissionsException,  DiscordException, RateLimitException {
 		setTyping(true, first.getChannel());
 		first.reply(message);
 		setTyping(false, first.getChannel());

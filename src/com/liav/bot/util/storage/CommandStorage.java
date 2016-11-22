@@ -35,8 +35,9 @@ import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.HTTP429Exception;
+import sx.blah.discord.util.RateLimitException;
 import sx.blah.discord.util.MissingPermissionsException;
+import sx.blah.discord.util.audio.AudioPlayer;
 
 /**
  * Static class which contains all the commands for use by the bot. Located here
@@ -151,75 +152,6 @@ public final class CommandStorage {
 							return "Invalid expression!";
 						}
 					}),
-			new Command("stream",
-					"Usage: `stream [url]`\nPlays the specified .mp3 from url.\nOnly works when you are in a voice channel",
-					"util", (String[] param, IUser u) -> {
-						if (param.length <= 0 || param[0] == null) {
-							return "Must specify a url";
-						}
-
-						final IVoiceChannel ch = u.getVoiceChannel().isPresent() ? u.getVoiceChannel().get() : null;
-						if (ch == null)
-
-				{
-							return "Must be in a voice channel";
-						}
-						try
-
-				{
-							final URI uri = new URI(param[0]);
-							if (!uri.getScheme().equals("https")) {
-								return "Scheme/protocol must be https, not " + uri.getScheme() + ".";
-							}
-							ch.join();
-							while (!ch.isConnected()) {
-							}
-							ch.getAudioChannel().queueUrl(param[0]);
-							// TaskPool.addTask(() -> {
-							// try {
-							// if (ch.getAudioChannel().getQueueSize() <= 0) {//
-							// meaning
-							// // that
-							// // there
-							// // are
-							// // no
-							// // more
-							// // sounds
-							// // left
-							// // to
-							// // play.
-							// // we
-							// // can
-							// // now
-							// // leave.
-							// ch.leave();
-							// return true;
-							// }
-							// } catch (Throwable t)
-							//
-							// {
-							// Bot.incrementError();
-							// t.printStackTrace();
-							// return true;
-							// }
-							// return false;
-							// });
-							// ch.leave();
-						} catch (
-
-				DiscordException e)
-
-				{
-							Bot.incrementError();
-							e.printStackTrace();
-							return "An error in Discord occured.";
-						} catch (URISyntaxException e) {
-							Bot.incrementError();
-							e.printStackTrace();
-							return "Unknown url";
-						}
-						return "playing " + param[0] + " in " + ch.getName();
-					}),
 			new Command("category",
 					"Usage: `category [*optional* category name]`\nLists all command categories, or shows all commands in a specified category",
 					"meta", (final String[] param) -> {
@@ -267,6 +199,9 @@ public final class CommandStorage {
 						} else {
 							u = user;
 						}
+						if(u==null){
+							return "Invalid user";
+						}
 						final String[] fates = FateStorage.getFates();
 						if (fates == null) {
 							return "Error retrieving list of fates.";
@@ -278,16 +213,14 @@ public final class CommandStorage {
 				Vector<String> strings = new Vector<>();
 
 				try {
-					final String googleUrl = "http://imgur.com/a/B4pQe/hit?scrolled";
+					final String googleUrl = "https://imgur.com/a/B4pQe/hit?scrolled";
 					final Document doc = Jsoup.connect(googleUrl)
 							.userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0")
 							.timeout(10 * 1000).get();
-					final Elements media = doc.select("div");
+					final Elements media = doc.select(".post-image-container");
 
 					for (final Element src : media) {
-						if (src.className().equals("post")) {
-							strings.add(src.attr("id").toString());
-						}
+						strings.add(src.attr("id").toString());
 					}
 
 					final String[] array = strings.toArray(new String[strings.size()]);
@@ -330,7 +263,7 @@ public final class CommandStorage {
 							e.printStackTrace();
 							Bot.incrementError();
 							return "An error in Discord occured.";
-						} catch (HTTP429Exception e) {
+						} catch (RateLimitException e) {
 							e.printStackTrace();
 							Bot.incrementError();
 							return "Too many requests! Try again later.";
@@ -356,7 +289,7 @@ public final class CommandStorage {
 							e.printStackTrace();
 							Bot.incrementError();
 							return "An error in Discord occured.";
-						} catch (HTTP429Exception e) {
+						} catch (RateLimitException e) {
 							e.printStackTrace();
 							Bot.incrementError();
 							return "Too many requests! Try again later.";

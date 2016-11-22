@@ -4,8 +4,9 @@ import java.io.File;
 import java.util.Optional;
 
 import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.api.IListener;
+import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
+import sx.blah.discord.handle.obj.Status;
 import sx.blah.discord.util.Image;
 
 import com.liav.bot.main.Bot;
@@ -24,12 +25,13 @@ public class ReadyListener implements IListener<ReadyEvent> {
 		try {
 			System.out.println("Preparing...");
 			final IDiscordClient client = event.getClient();
-			client.updatePresence(false, Optional.of("poker"));
+			client.changePresence(false);
+			client.changeStatus(Status.game("poker"));
 			// client.changeUsername("Marvin");
 			client.changeAvatar(Image.forFile(new File("hal.png")));
 			System.out.println("Waiting for connection...");
 			while (!client.isReady()) {
-				;
+				Thread.sleep(1);
 			}
 			System.out.println("Connected and ready");
 

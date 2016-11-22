@@ -1,6 +1,6 @@
 package com.liav.bot.listeners;
 
-import sx.blah.discord.api.IListener;
+import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IMessage;
 
