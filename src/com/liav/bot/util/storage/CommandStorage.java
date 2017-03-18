@@ -354,7 +354,7 @@ public final class CommandStorage {
 							arguments += "?firstName=" + firstName + "&lastName=" + lastName;
 						}
 						try {
-							final URL url = new URL("http://api.icndb.com/jokes/random" + arguments);
+							final URL url = new URL("https://api.icndb.com/jokes/random" + arguments);
 							final HttpURLConnection request = (HttpURLConnection) url.openConnection();
 							request.connect();
 
