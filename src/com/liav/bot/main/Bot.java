@@ -216,7 +216,6 @@ public class Bot {
 	}
 
 	public static void main(String[] args) throws DiscordException {
-
 		System.out.println("Trying to build...");
 		if (args.length != 1) {
 			System.err.println("Must input a bot token!");
@@ -227,10 +226,10 @@ public class Bot {
 			dispatcher.registerListener(new ReadyListener());
 			dispatcher.registerListener(new MentionListener());
 			dispatcher.registerListener(new MessageListener());
-			System.out.println("Build complete.");
 			final Executor e = Executors.newFixedThreadPool(2);
 			e.execute(new TaskExecutor());
 			e.execute(new ConsoleListener());
+			System.out.println("Build complete.");
 			startTime = System.currentTimeMillis();
 		}
 	}

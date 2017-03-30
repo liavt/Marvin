@@ -14,7 +14,7 @@ public class ConsoleListener implements Runnable{
 		try(Scanner scanner = new Scanner(System.in)){
 			while(true){
 				String input = scanner.nextLine();
-				System.out.println(CommandHandler.handleMention(input));
+				System.out.println(CommandHandler.handleDM(input));
 			}
 		}
 	}

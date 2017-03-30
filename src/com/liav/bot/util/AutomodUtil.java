@@ -25,6 +25,8 @@ import com.liav.bot.main.Bot;
  *
  */
 public final class AutomodUtil {
+	private static final String liavt = "78544340628013056";
+	
 	private AutomodUtil() {
 	}
 
@@ -124,7 +126,7 @@ public final class AutomodUtil {
 	 * @return Whether the bot is considered an admin.
 	 */
 	public static boolean isAdmin(IUser i, IGuild g) {
-		if(i.getID()=="78544340628013056")return true;
+		if(i.getID().equals(liavt))return true;
 		final List<IRole> l = i.getRolesForGuild(g);
 
 		for (IRole r : l) {

@@ -62,7 +62,7 @@ public final class CommandHandler {
 		return null;
 	}
 	
-	public static String handleMention(String message){
+	public static String handleDM(String message){
 		if (message.startsWith(";set")) {
 			final String[] param = message.split(" ");
 			if (param.length != 2) {

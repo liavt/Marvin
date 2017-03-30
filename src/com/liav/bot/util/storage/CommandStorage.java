@@ -306,24 +306,6 @@ public final class CommandStorage {
 					(final String[] p, final IMessage m) -> {
 						return "Ping?";
 					}),
-			new Command("clever",
-					"Usage: `clever [phrase]`\nTalk to Cleverbot!\nMentioning the bot will have the same effect", "fun",
-					(final String[] p, final IMessage m) -> {
-						if (p.length < 1) {
-							return "Must input a phrase!";
-						}
-						final StringBuilder sb = new StringBuilder();
-						for (String s : p) {
-							sb.append(s);
-						}
-						try {
-							return AutomodUtil.getCleverbotResponse(sb.toString());
-						} catch (Exception e) {
-							Bot.incrementError();
-							e.printStackTrace();
-							return "An error occured";
-						}
-					}),
 			new Command("ding", "Usage: ding\nDing dong!", "fun", (final String[] p, final IMessage m) -> {
 				return "Dong!";
 			}), new Command("dong", "Usage: dong\nDing dong!", "fun", (final String[] p, final IMessage m) -> {

@@ -7,6 +7,7 @@ import sx.blah.discord.handle.obj.IMessage;
 import com.liav.bot.interaction.commands.Command;
 import com.liav.bot.interaction.commands.CommandHandler;
 import com.liav.bot.main.Bot;
+import com.liav.bot.util.AutomodUtil;
 import com.liav.bot.util.storage.CommandStorage;
 
 /**
@@ -20,16 +21,14 @@ import com.liav.bot.util.storage.CommandStorage;
  * @see CommandHandler
  */
 public class MessageListener implements IListener<MessageReceivedEvent> {
-	private static final String liavt = "78544340628013056";
-
 	@Override
 	public void handle(MessageReceivedEvent event) {
 		try {
 			String message = event.getMessage().getContent();
 			// this is to let the "owner" of the bot to run it
 			if (event.getMessage().getChannel().isPrivate()
-					&& event.getMessage().getAuthor().getID().equals(liavt)) {
-				Bot.sendMessage(CommandHandler.handleMention(event.getMessage().getContent()),event.getMessage().getChannel());
+					&& AutomodUtil.isAdmin(event.getMessage().getAuthor(), event.getMessage().getGuild())) {
+				Bot.sendMessage(CommandHandler.handleDM(event.getMessage().getContent()),event.getMessage().getChannel());
 			} else if (message.startsWith(CommandHandler.getCommandPrefix())) {
 				CommandHandler.executeCommand(1, event.getMessage());
 			}

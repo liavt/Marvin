@@ -29,19 +29,7 @@ public class MentionListener implements IListener<MentionEvent> {
 			if (event.getMessage().getContent().startsWith("<")) {
 				System.out.println("Mentioned.");
 				final int offset = event.getMessage().getContent().indexOf(">") + 2;
-				final String message = event.getMessage().getContent()
-						.substring(offset);
-				if (message.startsWith(CommandHandler.getCommandPrefix())) {
-					CommandHandler.executeCommand(offset, event.getMessage());
-				} else {
-					Bot.incrementCommands();
-					Bot.reply(event.getMessage(),
-							AutomodUtil.getCleverbotResponse(message));// respond
-																		// with
-																		// a
-																		// clever
-																		// response
-				}
+				CommandHandler.executeCommand(offset, event.getMessage());
 			}
 		} catch (Throwable t) {
 			Bot.incrementError();
