@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 
 import com.liav.bot.interaction.commands.Command;
 import com.liav.bot.interaction.commands.CommandHandler;
+import com.liav.bot.listeners.ConsoleListener;
 import com.liav.bot.listeners.MentionListener;
 import com.liav.bot.listeners.MessageListener;
 import com.liav.bot.listeners.ReadyListener;
@@ -227,8 +228,9 @@ public class Bot {
 			dispatcher.registerListener(new MentionListener());
 			dispatcher.registerListener(new MessageListener());
 			System.out.println("Build complete.");
-			final Executor e = Executors.newFixedThreadPool(1);
+			final Executor e = Executors.newFixedThreadPool(2);
 			e.execute(new TaskExecutor());
+			e.execute(new ConsoleListener());
 			startTime = System.currentTimeMillis();
 		}
 	}

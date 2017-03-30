@@ -7,7 +7,11 @@ import com.liav.bot.main.Bot;
 import com.liav.bot.util.AutomodUtil;
 import com.liav.bot.util.storage.CommandStorage;
 
+import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
+import sx.blah.discord.util.DiscordException;
+import sx.blah.discord.util.MissingPermissionsException;
+import sx.blah.discord.util.RateLimitException;
 
 /**
  * Static class which handles all {@link Command commands} for the bot.
@@ -56,6 +60,32 @@ public final class CommandHandler {
 			}
 		}
 		return null;
+	}
+	
+	public static String handleMention(String message){
+		if (message.startsWith(";set")) {
+			final String[] param = message.split(" ");
+			if (param.length != 2) {
+				return "Invalid!";
+			}
+			Bot.setCurrentChannel(Bot.getClient().getChannelByID(
+					param[1]));
+			return "Set speaking channel to "
+					+ param[1]
+					+ " ("
+					+ Bot.getClient().getChannelByID(param[1])
+							.getName() + ")";
+		}
+		if (Bot.getCurrentChannel() == null) {
+			return "Channel not set!";
+		}
+		try {
+			Bot.sendMessage(message, Bot.getCurrentChannel());
+		} catch (DiscordException | MissingPermissionsException | RateLimitException e) {
+			Bot.incrementError();
+			e.printStackTrace();
+		}
+		return "Sent message: "+message;
 	}
 
 	/**

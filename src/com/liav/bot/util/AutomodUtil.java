@@ -151,7 +151,7 @@ public final class AutomodUtil {
 	 */
 	public static String getCleverbotResponse(String s) throws Exception {
 		if (cleverbot == null) {
-			cleverbot = chatter.create(ChatterBotType.CLEVERBOT);
+			cleverbot = chatter.create(ChatterBotType.PANDORABOTS);
 			cleverbotSession = cleverbot.createSession();
 		}
 		return cleverbotSession.think(s);

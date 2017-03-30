@@ -29,28 +29,7 @@ public class MessageListener implements IListener<MessageReceivedEvent> {
 			// this is to let the "owner" of the bot to run it
 			if (event.getMessage().getChannel().isPrivate()
 					&& event.getMessage().getAuthor().getID().equals(liavt)) {
-				if (message.startsWith(";set")) {
-					final String[] param = message.split(" ");
-					if (param.length != 2) {
-						Bot.sendMessage("Invalid!", event.getMessage()
-								.getChannel());
-					}
-					Bot.setCurrentChannel(Bot.getClient().getChannelByID(
-							param[1]));
-					Bot.sendMessage("Set speaking channel to "
-							+ param[1]
-							+ " ("
-							+ Bot.getClient().getChannelByID(param[1])
-									.getName() + ")", event.getMessage()
-							.getChannel());
-				} else {
-					if (Bot.getCurrentChannel() == null) {
-						Bot.sendMessage("Channel not set!", event.getMessage()
-								.getChannel());
-					}
-					Bot.sendMessage(message, Bot.getCurrentChannel());
-
-				}
+				Bot.sendMessage(CommandHandler.handleMention(event.getMessage().getContent()),event.getMessage().getChannel());
 			} else if (message.startsWith(CommandHandler.getCommandPrefix())) {
 				CommandHandler.executeCommand(1, event.getMessage());
 			}
