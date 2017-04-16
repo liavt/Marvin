@@ -1,5 +1,6 @@
 package com.liav.bot.util;
 
+import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -7,16 +8,16 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import com.github.imgur.ImgUr;
+import com.github.imgur.api.image.ImageRequest;
+import com.github.imgur.api.image.ImageResponse;
+import com.liav.bot.main.Bot;
+import com.liav.bot.main.Configuration;
+
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.Permissions;
-
-import com.google.code.chatterbotapi.ChatterBot;
-import com.google.code.chatterbotapi.ChatterBotFactory;
-import com.google.code.chatterbotapi.ChatterBotSession;
-import com.google.code.chatterbotapi.ChatterBotType;
-import com.liav.bot.main.Bot;
 
 /**
  * Class with various static helper functions used throughout the bot.
@@ -26,7 +27,7 @@ import com.liav.bot.main.Bot;
  */
 public final class AutomodUtil {
 	private static final String liavt = "78544340628013056";
-	
+
 	private AutomodUtil() {
 	}
 
@@ -41,8 +42,7 @@ public final class AutomodUtil {
 	public static String timeToString(int time) {
 		String message = "";
 		if (time > 60) {
-			int minutes = (int) Math.floor(time / 60), seconds = time
-					- (minutes * 60);
+			int minutes = (int) Math.floor(time / 60), seconds = time - (minutes * 60);
 			if (minutes > 60) {
 				int hours = (int) Math.floor(minutes / 60);
 				minutes -= (hours * 60);
@@ -84,20 +84,20 @@ public final class AutomodUtil {
 	 * @return The specified user in the bot's {@link IGuild}. If no user was
 	 *         found, returns null.
 	 */
-	public static IUser getUser(String s) {
-		final List<IGuild> current = Bot.getClient().getGuilds();
-		for (IGuild g : current) {
-			for (IUser u : g.getUsers()) {
-				if (u.getName().equals(s) || u.getID().equals(s)
-						|| ("<@" + u.getID() + ">").equals(s)) { return u; }
+	public static IUser getUser(String s, IGuild g) {
+		for (IUser u : g.getUsers()) {
+			if (u.getID().equals(s) || u.getDiscriminator().equals(s) || ("<@" + u.getID() + ">").equals(s)
+					|| ("<@!" + u.getID() + ">").equals(s)) {
+				return u;
 			}
 		}
+
 		return null;
 	}
 
 	/**
 	 * Converts a string to a mathematical expression and evaluates it with
-	 * Javascritp.
+	 * Javascript.
 	 * 
 	 * @param s
 	 *            String form of a mathmatical expression. Must be able to
@@ -126,36 +126,17 @@ public final class AutomodUtil {
 	 * @return Whether the bot is considered an admin.
 	 */
 	public static boolean isAdmin(IUser i, IGuild g) {
-		if(i.getID().equals(liavt))return true;
+		if (i.getID().equals(liavt)) return true;
 		final List<IRole> l = i.getRolesForGuild(g);
 
 		for (IRole r : l) {
 			final EnumSet<Permissions> e = r.getPermissions();
 			for (Permissions p : e) {
-				if (p.equals(Permissions.MANAGE_ROLES)) { return true; }
+				if (p.equals(Permissions.MANAGE_ROLES)) {
+					return true;
+				}
 			}
 		}
 		return false;
-	}
-
-	private static final ChatterBotFactory chatter = new ChatterBotFactory();
-	private static ChatterBot cleverbot;
-	private static ChatterBotSession cleverbotSession;
-
-	/**
-	 * Grab a reponse from the Cleverbot API
-	 * 
-	 * @param s
-	 *            What Cleverbot should respond to
-	 * @return A response from within Cleverbot's API
-	 * @throws Exception
-	 *             In case Cleverbot initialization fails
-	 */
-	public static String getCleverbotResponse(String s) throws Exception {
-		if (cleverbot == null) {
-			cleverbot = chatter.create(ChatterBotType.PANDORABOTS);
-			cleverbotSession = cleverbot.createSession();
-		}
-		return cleverbotSession.think(s);
 	}
 }

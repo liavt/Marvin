@@ -1,8 +1,12 @@
 package com.liav.bot.main;
 
+import java.io.FileNotFoundException;
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import org.apache.log4j.BasicConfigurator;
 
 import com.liav.bot.interaction.commands.Command;
 import com.liav.bot.interaction.commands.CommandHandler;
@@ -15,8 +19,11 @@ import com.liav.bot.main.tasks.TaskExecutor;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.events.EventDispatcher;
 import sx.blah.discord.api.IDiscordClient;
+import sx.blah.discord.handle.impl.obj.Role;
 import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
+import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MessageBuilder;
 import sx.blah.discord.util.MissingPermissionsException;
@@ -215,12 +222,18 @@ public class Bot {
 		Bot.currentChannel = currentChannel;
 	}
 
-	public static void main(String[] args) throws DiscordException {
+	public static void main(String[] args) throws Exception {
 		System.out.println("Trying to build...");
 		if (args.length != 1) {
 			System.err.println("Must input a bot token!");
-		} else {
-			client = buildClient(args[0]);
+		} else {			
+			Configuration.init();
+			
+			if(!Configuration.properties.containsKey("DISCORD")){
+				throw new IllegalArgumentException("Must insert a Discord API key in config.txt!");
+			}
+			
+			client = buildClient(Configuration.properties.get("DISCORD"));
 
 			final EventDispatcher dispatcher = client.getDispatcher();
 			dispatcher.registerListener(new ReadyListener());

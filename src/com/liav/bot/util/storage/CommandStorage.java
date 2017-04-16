@@ -31,6 +31,8 @@ import com.liav.bot.main.Bot;
 import com.liav.bot.main.tasks.TaskPool;
 import com.liav.bot.util.AutomodUtil;
 
+import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.IVoiceChannel;
@@ -75,15 +77,59 @@ public final class CommandStorage {
 						}
 						return "Rolled a `" + Bot.random.nextInt(number) + "` out of `" + param[0] + "`";
 					}),
+			new Command("compatible",
+					"Usage: `compatible [user1] [*optional* user2]\nTests the compatibility of 2 people", "fun",
+					(String[] param, IMessage c) -> {
+						if (param.length == 0) {
+							return "Must specify a user";
+						}
+
+						IUser user1;
+						IUser user2;
+						if (param.length == 1) {
+							user1 = c.getAuthor();
+							user2 = AutomodUtil.getUser(param[0], c.getGuild());
+						} else {
+							user1 = AutomodUtil.getUser(param[0], c.getGuild());
+							user2 = AutomodUtil.getUser(param[1], c.getGuild());
+						}
+
+						if (user1 == null || user2 == null) {
+							return "Invalid user(s)";
+						} else if (user1.equals(user2)) {
+							return "You need 2 different people!";
+						}
+
+						double user1ID = Long.parseLong(user1.getID());
+						double user2ID = Long.parseLong(user2.getID());
+
+						double rating1 = (user1ID / user2ID) * 10.0;
+						double rating2 = (user2ID / user1ID) * 10.0;
+
+						String finalRating = Double.toString((rating1 / rating2) * 10.0);
+
+						return "The compatibility of " + user1.getName() + " and " + user2.getName() + " is "
+								+ finalRating.substring(0, finalRating.indexOf('.') + 2) + "/10.0";
+					}),
+			new Command("reverse", "Usage: `reverse [phrase]`\nReverses a string", "util", (String[] param) -> {
+				if (param.length == 0) {
+					return "Must input a phrase";
+				}
+				StringBuilder b = new StringBuilder(param[0]);
+				for (int i = 1; i < param.length; i++) {
+					b.append(" " + param[i]);
+				}
+				return b.reverse().toString();
+			}),
 			new Command("help",
 					"Usage: `help [*optional* command]`\nIf you haven't figured it out already:\nExplains a command,or views all commands",
 					"meta", StringCommand.getHelpCommand()),
 			new Command("pester", "Usage: `pester`\nPesters the bot, causing it to respond to you", "fun", true,
-					(String[] p, IUser u) -> {
+					(String[] p) -> {
 						return QuoteStorage.alerts[Bot.random.nextInt(QuoteStorage.alerts.length - 1)];
 					}),
 			new Command("annoy", "Usage: `annoy`\nAnnoys the bot, causing it to respond to you", "fun", true,
-					(String[] p, IUser u) -> {
+					(String[] p) -> {
 						return QuoteStorage.warnings[Bot.random.nextInt(QuoteStorage.warnings.length - 1)];
 					}),
 			new Command("pleb", "Usage: `pleb`\nPleb.", "fun", (String[] param) -> {
@@ -102,12 +148,12 @@ public final class CommandStorage {
 					(String[] param, IUser u) -> {
 						return "Over the rainbow.";
 					}),
-			new Command("hack", "Usage: `hack [player]`\nHax0rs someone", "fun", (String[] param) -> {
+			new Command("hack", "Usage: `hack [player]`\nHax0rs someone", "fun", (String[] param, IMessage m) -> {
 				if (param.length <= 0 || param[0] == null) {
 					return "Must specify a player to hack";
 				}
 				final StringBuilder sb = new StringBuilder();
-				final IUser u = AutomodUtil.getUser(param[0]);
+				final IUser u = AutomodUtil.getUser(param[0], m.getGuild());
 				if (u == null) {
 					return param[0] + " cannot be hacked, as " + param[0]
 							+ " couldn\'t be found in the triangulating mainframe.";
@@ -192,14 +238,14 @@ public final class CommandStorage {
 						return sb.toString();
 					}),
 			new Command("fate", "Usage: `fate [*optional* player]`\nTells the fate of a person.", "fun",
-					(final String[] p, final IUser user) -> {
+					(final String[] p, final IMessage m) -> {
 						final IUser u;
 						if (p.length >= 1) {
-							u = AutomodUtil.getUser(p[0]);
+							u = AutomodUtil.getUser(p[0], m.getGuild());
 						} else {
-							u = user;
+							u = m.getAuthor();
 						}
-						if(u==null){
+						if (u == null) {
 							return "Invalid user";
 						}
 						final String[] fates = FateStorage.getFates();
@@ -300,15 +346,15 @@ public final class CommandStorage {
 
 						return "";
 					}),
-			new Command("ping", "`Usage: ping`\nPong!", "fun", (final String[] p, final IMessage m) -> {
+			new Command("ping", "Usage: `ping`\nPong!", "fun", (final String[] p, final IMessage m) -> {
 				return "Pong!";
-			}), new Command("pong", "`Usage: pong`\nWhen ping isn't good enough for you", "fun",
+			}), new Command("pong", "`Usage: `pong`\nWhen ping isn't good enough for you", "fun",
 					(final String[] p, final IMessage m) -> {
 						return "Ping?";
 					}),
-			new Command("ding", "Usage: ding\nDing dong!", "fun", (final String[] p, final IMessage m) -> {
+			new Command("ding", "Usage: `ding`\nDing dong!", "fun", (final String[] p, final IMessage m) -> {
 				return "Dong!";
-			}), new Command("dong", "Usage: dong\nDing dong!", "fun", (final String[] p, final IMessage m) -> {
+			}), new Command("dong", "Usage: `dong`\nDing dong!", "fun", (final String[] p, final IMessage m) -> {
 				return "( ͡° ͜ʖ ͡°) Ding!";
 			}),
 			new Command("chuck",
@@ -319,7 +365,7 @@ public final class CommandStorage {
 						}
 						String arguments = "";
 						if (p.length == 1) {
-							final IUser user = AutomodUtil.getUser(p[0]);
+							final IUser user = AutomodUtil.getUser(p[0], m.getGuild());
 							if (user == null) {
 								return "User doesn't have a name or doesn't exist!";
 							}
