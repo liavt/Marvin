@@ -44,6 +44,11 @@ public class Bot {
 	 * {@link SecureRandom}.
 	 */
 	public static final SecureRandom random = new SecureRandom();
+	
+	private static long startTime;
+	private static long errors, commands;
+
+	private static IChannel currentChannel = null;
 
 	/**
 	 * Returns the {@link IDiscordClient} associated with the application, and
@@ -196,11 +201,6 @@ public class Bot {
 		commands++;
 	}
 
-	private static long startTime;
-	private static long errors, commands;
-
-	private static IChannel currentChannel = null;
-
 	/**
 	 * Get the channel the bot is currently speaking in. Used only by
 	 * {@link MessageListener}
@@ -239,9 +239,11 @@ public class Bot {
 			dispatcher.registerListener(new ReadyListener());
 			dispatcher.registerListener(new MentionListener());
 			dispatcher.registerListener(new MessageListener());
-			final Executor e = Executors.newFixedThreadPool(2);
+			final Executor e = Executors.newFixedThreadPool(3);
 			e.execute(new TaskExecutor());
 			e.execute(new ConsoleListener());
+			e.execute(new ConfigurationSaver());
+			
 			System.out.println("Build complete.");
 			startTime = System.currentTimeMillis();
 		}

@@ -16,12 +16,6 @@ public final class TaskPool {
 	private TaskPool() {
 	}
 
-	/**
-	 * How many milliseconds it will take for tasks to get their
-	 * {@link Task#tick()} method called.
-	 */
-	public static final int UPDATE_RATE = 50;
-
 	private static volatile ArrayList<Task> tasks = new ArrayList<>();
 
 	/**

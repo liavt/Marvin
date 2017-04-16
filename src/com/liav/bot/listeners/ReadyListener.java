@@ -8,7 +8,9 @@ import sx.blah.discord.handle.obj.Status;
 
 import java.util.List;
 
+import com.liav.bot.interaction.user.Users;
 import com.liav.bot.main.Bot;
+import com.liav.bot.main.Configuration;
 
 /**
  * {@link IListener} which checks for {@link ReadyEvent ReadyEvents}. Sets the
@@ -22,11 +24,11 @@ public class ReadyListener implements IListener<ReadyEvent> {
 	@Override
 	public void handle(ReadyEvent event) {
 		try {
-			System.out.println("Preparing...");
+			System.out.println("Connected to Discord. Preparing...");
+			Configuration.load();
 			final IDiscordClient client = event.getClient();
 			client.changePresence(false);
 			client.changeStatus(Status.game("poker"));
-			System.out.println("Waiting for connection...");
 			while (!client.isReady()) {
 				Thread.sleep(1);
 			}

@@ -11,6 +11,8 @@ import javax.script.ScriptException;
 import com.github.imgur.ImgUr;
 import com.github.imgur.api.image.ImageRequest;
 import com.github.imgur.api.image.ImageResponse;
+import com.liav.bot.interaction.user.UserInfo;
+import com.liav.bot.interaction.user.Users;
 import com.liav.bot.main.Bot;
 import com.liav.bot.main.Configuration;
 
@@ -26,8 +28,6 @@ import sx.blah.discord.handle.obj.Permissions;
  *
  */
 public final class AutomodUtil {
-	private static final String liavt = "78544340628013056";
-
 	private AutomodUtil() {
 	}
 
@@ -126,7 +126,7 @@ public final class AutomodUtil {
 	 * @return Whether the bot is considered an admin.
 	 */
 	public static boolean isAdmin(IUser i, IGuild g) {
-		if (i.getID().equals(liavt)) return true;
+		if (i.getID().equals(Configuration.OWNER)) return true;
 		final List<IRole> l = i.getRolesForGuild(g);
 
 		for (IRole r : l) {

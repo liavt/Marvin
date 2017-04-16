@@ -7,9 +7,19 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.Vector;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.script.ScriptException;
 
@@ -27,6 +37,8 @@ import com.liav.bot.interaction.commands.CategoryHandler.Category;
 import com.liav.bot.interaction.commands.Command;
 import com.liav.bot.interaction.commands.CommandHandler;
 import com.liav.bot.interaction.commands.interfaces.StringCommand;
+import com.liav.bot.interaction.user.UserInfo;
+import com.liav.bot.interaction.user.Users;
 import com.liav.bot.main.Bot;
 import com.liav.bot.main.tasks.TaskPool;
 import com.liav.bot.util.AutomodUtil;
@@ -106,7 +118,7 @@ public final class CommandStorage {
 						double rating1 = (user1ID / user2ID) * 10.0;
 						double rating2 = (user2ID / user1ID) * 10.0;
 
-						String finalRating = Double.toString((rating1 / rating2) * 10.0);
+						String finalRating = Double.toString(2.0 * (((rating1 / rating2) * 10.0) - 10.0));
 
 						return "The compatibility of " + user1.getName() + " and " + user2.getName() + " is "
 								+ finalRating.substring(0, finalRating.indexOf('.') + 2) + "/10.0";
@@ -286,7 +298,7 @@ public final class CommandStorage {
 				return finRes;
 			}), new Command("about", "Usage: `about`\nLearn about the bot", "meta",
 					(final String[] p, final IUser user) -> {
-						return "Created by Liav Turkia with <3\nSource code at https://www.github.com/liavt/marvin\nTo invite your server, open this link:\nhttps://discordapp.com/oauth2/authorize?client_id=199977541635801088&scope=bot&permissions=271711254";
+						return "Created by Liav Turkia with ❤\nSource code at https://www.github.com/liavt/marvin\nTo invite your server, open this link:\nhttps://discordapp.com/oauth2/authorize?client_id=199977541635801088&scope=bot&permissions=271711254";
 					}),
 			new Command("status", "Usage: `status`\nView uptime, errors, and various debug values", "meta", false, true,
 					(final String[] p, final IUser u) -> {
@@ -356,7 +368,154 @@ public final class CommandStorage {
 				return "Dong!";
 			}), new Command("dong", "Usage: `dong`\nDing dong!", "fun", (final String[] p, final IMessage m) -> {
 				return "( ͡° ͜ʖ ͡°) Ding!";
-			}),
+			}), new Command("balance", "Usage: `balance`\nCheck your current balance", "economy",
+					(final String[] p, final IUser u) -> {
+						return "Your current balance is $" + Users.getInfo(u).getMoney();
+					}),
+			new Command("give", "Usage: `give [amount] [users]`\nGives a certain amount of money to someone", "economy",
+					(final String[] p, final IMessage m) -> {
+						if (p.length == 0) {
+							return "Must have an amount and a user!";
+						} else if (p.length != 2) {
+							return "Invalid argument! Use `help give` to learn how this command work.";
+						}
+
+						long amount = 0;
+						try {
+							amount = Long.parseLong(p[0]);
+						} catch (NumberFormatException e) {
+							return "Amount must be a number!";
+						}
+
+						if (amount <= 0) {
+							return "Amount must be greater than 0!";
+						}
+
+						IUser sendee = m.getAuthor();
+						IUser reciever = AutomodUtil.getUser(p[1], m.getGuild());
+						if (reciever == null) {
+							return "Invalid person to give money to.";
+						} else if (sendee.equals(reciever)) {
+							return "Can\'t send money to yourself!";
+						}
+
+						UserInfo sendeeInfo = Users.getInfo(sendee);
+						UserInfo recieverInfo = Users.getInfo(reciever);
+
+						if (sendeeInfo.getMoney() < amount) {
+							return "You do not have enough money to send $" + amount + "!";
+						}
+
+						sendeeInfo.addMoney(-amount);
+						recieverInfo.addMoney(amount);
+
+						return sendee.getName() + " has sent $" + amount + " to " + reciever.getName() + ".\n "
+								+ sendee.getName() + " now has $" + sendeeInfo.getMoney() + " and " + reciever.getName()
+								+ " now has $" + recieverInfo.getMoney();
+					}),
+			new Command("leaderboard", "Usage: `leaderboard`\nView the richest people on this Discord!", "economy",
+					(final String[] p, final IMessage m) -> {
+						List<IUser> guildUsers = m.getGuild().getUsers();
+						Map<IUser, UserInfo> users = Users.getUsers();
+						ArrayList<Entry<IUser, UserInfo>> leaderboard = new ArrayList<>();
+
+						for (Entry<IUser, UserInfo> e : users.entrySet()) {
+							if (guildUsers.contains(e.getKey())) {
+								leaderboard.add(e);
+							}
+						}
+
+						// sorting a map by a custom value... only java makes it
+						// this easy
+						Collections.sort(leaderboard, new Comparator<Entry<IUser, UserInfo>>() {
+							@Override
+							public int compare(Entry<IUser, UserInfo> left, Entry<IUser, UserInfo> right) {
+								return (int) (right.getValue().getMoney() - left.getValue().getMoney());
+							}
+						});
+
+						String out = "**🏆Server Leaderboad🏆**\n";
+						int i = 0;
+						for (Entry<IUser, UserInfo> e : leaderboard) {
+							out += (++i) + " - " + e.getKey().getName() + " with $" + e.getValue().getMoney() + "\n";
+						}
+
+						return out;
+					}),
+			new Command("gamble", "Usage: gamble [amount]\nGamble an amount for the chance to win it big!", "fun",
+					(final String[] p, final IMessage m) -> {
+						if (p.length == 0) {
+							return "Must provide a monetary amount!";
+						}
+
+						UserInfo info = Users.getInfo(m.getAuthor());
+						long amount = 0;
+
+						if (p[0].equals("all")) {
+							amount = info.getMoney();
+						} else {
+							try {
+								amount = Long.parseLong(p[0]);
+							} catch (NumberFormatException e) {
+								return "Amount must be a number!";
+							}
+						}
+
+						if (amount <= 0) {
+							return "Amount must be greater than 0!";
+						}
+
+						if (info.getMoney() < amount) {
+							return "You do not have enough money to gamble $" + amount + "!";
+						}
+
+						int success = -2;
+
+						String roll = Long.toString(Math.abs(Bot.random.nextLong()));
+						String ID = m.getAuthor().getID();
+						for (int i = 0; i < ID.length(); ++i) {
+							if (i < roll.length() && (roll.charAt(i) == ID.charAt(i)
+									|| (i > 0 && roll.charAt(i) == ID.charAt(i - 1)))) {
+								++success;
+							}
+						}
+
+						if (success < 0) {
+							success = 0;
+						}
+
+						String output = "";
+
+						long reward = success * amount;
+
+						if (success == 0) {
+							output = "Oh no! You lost it all.";
+						} else if (success == 1) {
+							output = "You didn\'t lose or gain anything.";
+						} else if (success > 1 && success < 4) {
+							reward = (long) Math.ceil(amount * (1.0 + (success * 0.3)));
+							output = "You got some money! ";
+						} else if (success >= 4) {
+							output = "JACKPOT! ";
+						}
+
+						info.addMoney(reward - amount);
+
+						return output + " You got $" + reward + ". You are now at $" + info.getMoney();
+					}),
+			new Command("daily", "Usage: `daily`\nUse once a day to get $100 for free!", "economy",
+					(final String[] p, final IUser u) -> {
+						final UserInfo info = Users.getInfo(u);
+
+						if (!info.isDailyAvailable()) {
+							return "You can claim your daily in `"
+									+ AutomodUtil.timeToString((int) (info.timeUntilNextDaily() / 1000)) + '`';
+						}
+
+						info.doDaily();
+
+						return "You have gained $100! Your new balance is $" + info.getMoney();
+					}),
 			new Command("chuck",
 					"Usage: `chuck [*optional* person]`\nGet a Chuck Norris joke\nThe joke will feature a user if specified\n*Jokes from http://www.icndb.com/*",
 					"fun", (final String[] p, final IMessage m) -> {

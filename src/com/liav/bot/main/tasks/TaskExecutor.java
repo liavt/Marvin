@@ -3,6 +3,7 @@ package com.liav.bot.main.tasks;
 import java.util.concurrent.Executor;
 
 import com.liav.bot.main.Bot;
+import com.liav.bot.main.Configuration;
 
 /**
  * Runnable which automatically calls {@link TaskPool#tick()} every
@@ -20,11 +21,13 @@ public class TaskExecutor implements Runnable {
 		try {
 			synchronized (this) {
 				while (true) {
-					wait(TaskPool.UPDATE_RATE);
+					wait(Configuration.UPDATE_RATE);
 					TaskPool.tick();
 				}
 			}
 		} catch (Throwable e) {
+			Bot.incrementError();
+
 			e.printStackTrace();
 		}
 	}

@@ -1,9 +1,11 @@
 package com.liav.bot.interaction.commands;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.liav.bot.main.Bot;
+import com.liav.bot.main.Configuration;
 import com.liav.bot.util.AutomodUtil;
 import com.liav.bot.util.storage.CommandStorage;
 
@@ -27,10 +29,6 @@ public final class CommandHandler {
 	 * Used to execute tasks
 	 */
 	private static final ExecutorService exe = Executors.newCachedThreadPool();
-	/**
-	 * @see #getCommandPrefix
-	 */
-	private static final String prefix = ";";
 
 	/**
 	 * Return the {@link String} that is used in commands.
@@ -41,7 +39,7 @@ public final class CommandHandler {
 	 * @return Prefix of commands
 	 */
 	public static final String getCommandPrefix() {
-		return prefix;
+		return Configuration.COMMAND_PREFIX;
 	}
 
 	/**
@@ -62,8 +60,8 @@ public final class CommandHandler {
 		return null;
 	}
 	
-	public static String handleDM(String message){
-		if (message.startsWith(";set")) {
+	public static String handleDM(String message) throws IOException{
+		if (message.startsWith(getCommandPrefix() + "set")) {
 			final String[] param = message.split(" ");
 			if (param.length != 2) {
 				return "Invalid!";
@@ -75,6 +73,9 @@ public final class CommandHandler {
 					+ " ("
 					+ Bot.getClient().getChannelByID(param[1])
 							.getName() + ")";
+		}else if(message.startsWith(getCommandPrefix() + "save")){
+			Configuration.save();
+			return "Saved.";
 		}
 		if (Bot.getCurrentChannel() == null) {
 			return "Channel not set!";
