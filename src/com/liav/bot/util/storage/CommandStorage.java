@@ -75,11 +75,10 @@ public final class CommandStorage {
 	 * 
 	 * @see CommandHandler
 	 */
-	public final static Command[] commands = {
-			new Command("newfag", "Usage: `newfag`\nBe the fag of the new generation with the newfag command", "fun",
-					(String[] param) -> {
-						return "newfag is NOT a command and will NEVER be a command";
-					}),
+	public final static Command[] commands = { new Command("newfag",
+			"Usage: `newfag`\nBe the fag of the new generation with the newfag command", "fun", (String[] param) -> {
+				return "newfag is NOT a command and will NEVER be a command";
+			}),
 			new Command("roll",
 					"Usage: `roll [*optional* bound]`\nImagine rolling the dice. Now imagine not actually rolling a die, but imaginarily rolling it. You will get it",
 					"math", (String[] param) -> {
@@ -209,7 +208,7 @@ public final class CommandStorage {
 									+ "`";
 						} catch (ScriptException e)
 
-				{
+					{
 							e.printStackTrace();
 							Bot.incrementError();
 							return "Invalid expression!";
@@ -301,9 +300,9 @@ public final class CommandStorage {
 				}
 
 				return finRes;
-			}), new Command("about", "Usage: `about`\nLearn about the bot", "meta",
+			}), new Command("info", "Usage: `infot`\nLearn about the bot", "meta",
 					(final String[] p, final IUser user) -> {
-						return "Created by Liav Turkia with ❤\nSource code at https://www.github.com/liavt/marvin\nTo invite your server, open this link:\nhttps://discordapp.com/oauth2/authorize?client_id=199977541635801088&scope=bot&permissions=271711254";
+						return "Use `"+CommandHandler.getCommandPrefix()+"help` to view commands.\nCreated by Liav Turkia with :heart:\nSource code at https://www.github.com/liavt/marvin\nTo invite your server, open this link:\nhttps://discordapp.com/oauth2/authorize?client_id=199977541635801088&scope=bot&permissions=271711254";
 					}),
 			new Command("status", "Usage: `status`\nView uptime, errors, and various debug values", "meta", false, true,
 					(final String[] p, final IUser u) -> {
@@ -382,7 +381,7 @@ public final class CommandStorage {
 						if (p.length == 0) {
 							return "Must have an amount and a user!";
 						} else if (p.length != 2) {
-							return "Invalid argument! Use `" + Configuration.COMMAND_PREFIX
+							return "Invalid argument! Use `" + CommandHandler.getCommandPrefix()
 									+ "help give` to learn how this command work.";
 						}
 
@@ -454,7 +453,7 @@ public final class CommandStorage {
 							} else if (param[1].equals("fish")) {
 								game = new FishingGame();
 							} else {
-								return "Invalid game. Use `" + Configuration.COMMAND_PREFIX
+								return "Invalid game. Use `" + CommandHandler.getCommandPrefix()
 										+ "game list` to view available games.";
 							}
 
@@ -479,7 +478,7 @@ public final class CommandStorage {
 							GameHandler.getGame(m.getChannel()).addUser(m.getAuthor());
 							;
 
-							return "Started game. Use `" + Configuration.COMMAND_PREFIX + "game join` to join.";
+							return "Started game. Use `" + CommandHandler.getCommandPrefix() + "game join` to join.";
 						} else if (param[0].equals("join")) {
 							if (!GameHandler.hasGame(m.getChannel())) {
 								return "No game running!";
@@ -664,6 +663,5 @@ public final class CommandStorage {
 							e.printStackTrace();
 							return "Error reading from joke server!";
 						}
-					})
-	};
+					}) };
 }

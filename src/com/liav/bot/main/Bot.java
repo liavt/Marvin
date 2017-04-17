@@ -44,7 +44,7 @@ public class Bot {
 	 * {@link SecureRandom}.
 	 */
 	public static final SecureRandom random = new SecureRandom();
-	
+
 	private static long startTime;
 	private static long errors, commands;
 
@@ -96,12 +96,13 @@ public class Bot {
 	 *             messages on the specified channel
 	 * @throws DiscordException
 	 *             Whether Discord has returned an error message.
-	 * @throws RateLimitException 
+	 * @throws RateLimitException
 	 *             Whether there are too many requests sent to this channel.
 	 * @see MessageBuilder
 	 * @see IMessage
 	 */
-	public static IMessage sendMessage(String message, IChannel channel) throws DiscordException, MissingPermissionsException, RateLimitException {
+	public static IMessage sendMessage(String message, IChannel channel)
+			throws DiscordException, MissingPermissionsException, RateLimitException {
 		return sendMessage(message, false, channel);
 	}
 
@@ -137,10 +138,11 @@ public class Bot {
 	 *             messages on the specified channel
 	 * @throws DiscordException
 	 *             Whether Discord has returned an error message.
-	 * @throws RateLimitException 
+	 * @throws RateLimitException
 	 * @see IMessage
 	 */
-	public static IMessage sendMessage(String message, boolean tts, IChannel channel) throws DiscordException, MissingPermissionsException, RateLimitException {
+	public static IMessage sendMessage(String message, boolean tts, IChannel channel)
+			throws DiscordException, MissingPermissionsException, RateLimitException {
 		setTyping(true, channel);
 		if (!message.equals("") && !message.equals(" ")) {
 			final MessageBuilder mb = new MessageBuilder(getClient()).withChannel(channel).withContent(message);
@@ -154,7 +156,7 @@ public class Bot {
 	}
 
 	public static void reply(IMessage first, String message)
-			throws MissingPermissionsException,  DiscordException, RateLimitException {
+			throws MissingPermissionsException, DiscordException, RateLimitException {
 		setTyping(true, first.getChannel());
 		first.reply(message);
 		setTyping(false, first.getChannel());
@@ -227,28 +229,26 @@ public class Bot {
 
 	public static void main(String[] args) throws Exception {
 		System.out.println("Trying to build...");
-		if (args.length != 1) {
-			System.err.println("Must input a bot token!");
-		} else {			
-			Configuration.init();
-			
-			if(!Configuration.properties.containsKey("DISCORD")){
-				throw new IllegalArgumentException("Must insert a Discord API key in config.txt!");
-			}
-			
-			client = buildClient(Configuration.properties.get("DISCORD"));
 
-			final EventDispatcher dispatcher = client.getDispatcher();
-			dispatcher.registerListener(new ReadyListener());
-			dispatcher.registerListener(new MentionListener());
-			dispatcher.registerListener(new MessageListener());
-			final Executor e = Executors.newFixedThreadPool(3);
-			e.execute(new TaskExecutor());
-			e.execute(new ConsoleListener());
-			e.execute(new ConfigurationSaver());
-			
-			System.out.println("Build complete.");
-			startTime = System.currentTimeMillis();
+		Configuration.init();
+
+		if (!Configuration.properties.containsKey("DISCORD")) {
+			throw new IllegalArgumentException("Must insert a Discord API key in "+Configuration.CONFIG_FILE+"!");
 		}
+
+		client = buildClient(Configuration.properties.get("DISCORD"));
+
+		final EventDispatcher dispatcher = client.getDispatcher();
+		dispatcher.registerListener(new ReadyListener());
+		dispatcher.registerListener(new MentionListener());
+		dispatcher.registerListener(new MessageListener());
+		final Executor e = Executors.newFixedThreadPool(3);
+		e.execute(new TaskExecutor());
+		e.execute(new ConsoleListener());
+		e.execute(new ConfigurationSaver());
+
+		System.out.println("Build complete.");
+		startTime = System.currentTimeMillis();
+
 	}
 }
