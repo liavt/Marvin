@@ -10,16 +10,9 @@ import com.liav.bot.interaction.user.Users;
 import com.liav.bot.main.tasks.Task;
 
 public class Configuration {
-	/**
-	 * @see #getCommandPrefix
-	 */
-	public static final String COMMAND_PREFIX = ";";
-
-	public static final String OWNER = "78544340628013056";
-
 	public static final String USERS_FILE = "users.txt";
 	public static final String CONFIG_FILE = "config.txt";
-	
+
 	public static final int DEFAULT_GAME_STARTUP = 15000;
 	/**
 	 * Amount of milliseconds in a daily (one day)
@@ -33,14 +26,13 @@ public class Configuration {
 	public static final int UPDATE_RATE = 1000;
 
 	public static final long SAVE_TIME = 300000L;
-	
+
 	public static final int MAX_GAME_SIZE = 6;
-	
+
 	public static final int GAME_REWARD = 10;
 
-	public static Map<String, String> properties = new HashMap<>();
+	public static final Map<String, String> properties = new HashMap<>();
 
-	@SuppressWarnings("resource")
 	public static void init() throws IOException {
 		try (BufferedReader reader = new BufferedReader(new FileReader(new File(Configuration.CONFIG_FILE)))) {
 			String buffer = "";
@@ -52,6 +44,10 @@ public class Configuration {
 				}
 				properties.put(values[0], values[1]);
 			}
+		}
+
+		if (!Configuration.properties.containsKey("OWNER")) {
+			throw new IllegalArgumentException(CONFIG_FILE + " must contain an OWNER property with a user id!");
 		}
 	}
 

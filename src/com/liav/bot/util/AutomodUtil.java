@@ -126,7 +126,7 @@ public final class AutomodUtil {
 	 * @return Whether the bot is considered an admin.
 	 */
 	public static boolean isAdmin(IUser i, IGuild g) {
-		if (i.getID().equals(Configuration.OWNER)) return true;
+		if (i.getID().equals(Configuration.properties.get("OWNER"))) return true;
 		final List<IRole> l = i.getRolesForGuild(g);
 
 		for (IRole r : l) {

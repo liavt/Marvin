@@ -28,7 +28,7 @@ public class ReadyListener implements IListener<ReadyEvent> {
 			Configuration.load();
 			final IDiscordClient client = event.getClient();
 			client.changePresence(false);
-			client.changeStatus(Status.game("poker"));
+			client.changeStatus(Status.game(Configuration.properties.get("BOT_STATUS")));
 			while (!client.isReady()) {
 				Thread.sleep(1);
 			}

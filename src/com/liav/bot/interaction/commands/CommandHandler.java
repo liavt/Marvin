@@ -39,7 +39,7 @@ public final class CommandHandler {
 	 * @return Prefix of commands
 	 */
 	public static final String getCommandPrefix() {
-		return Configuration.COMMAND_PREFIX;
+		return Configuration.properties.get("COMMAND_PREFIX");
 	}
 
 	/**
@@ -59,21 +59,17 @@ public final class CommandHandler {
 		}
 		return null;
 	}
-	
-	public static String handleDM(String message) throws IOException{
+
+	public static String handleDM(String message) throws IOException {
 		if (message.startsWith(getCommandPrefix() + "set")) {
 			final String[] param = message.split(" ");
 			if (param.length != 2) {
 				return "Invalid!";
 			}
-			Bot.setCurrentChannel(Bot.getClient().getChannelByID(
-					param[1]));
-			return "Set speaking channel to "
-					+ param[1]
-					+ " ("
-					+ Bot.getClient().getChannelByID(param[1])
-							.getName() + ")";
-		}else if(message.startsWith(getCommandPrefix() + "save")){
+			Bot.setCurrentChannel(Bot.getClient().getChannelByID(param[1]));
+			return "Set speaking channel to " + param[1] + " (" + Bot.getClient().getChannelByID(param[1]).getName()
+					+ ")";
+		} else if (message.startsWith(getCommandPrefix() + "save")) {
 			Configuration.save();
 			return "Saved.";
 		}
@@ -86,7 +82,7 @@ public final class CommandHandler {
 			Bot.incrementError();
 			e.printStackTrace();
 		}
-		return "Sent message: "+message;
+		return "Sent message: " + message;
 	}
 
 	/**
@@ -134,13 +130,10 @@ public final class CommandHandler {
 					Bot.setTyping(true, m.getChannel());
 					Bot.incrementCommands();
 					System.out.println("Executing command: " + split[0]);
-					final String reply = c.execute(param, m);
+					//zero width space prevents it from accidently executing other bots
+					final String reply = "\u200B" + c.execute(param, m);
 					if (reply != null && !reply.equals("")) {
-						if (!c.isTTS()) {
-							Bot.reply(m, reply);
-						} else {
-							Bot.sendMessage(reply, c.isTTS(), m.getChannel());
-						}
+						Bot.sendMessage(reply, c.isTTS(), m.getChannel());
 					}
 				} else {
 					Bot.sendMessage("Must be an admin to use this command!", false, m.getChannel());
