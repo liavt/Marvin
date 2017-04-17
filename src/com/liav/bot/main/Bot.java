@@ -90,6 +90,7 @@ public class Bot {
 	 *            The message contents
 	 * @param channel
 	 *            The text channel to send the message on
+	 * @return The message that was sent
 	 * @throws MissingPermissionsException
 	 *             If the bot doesn't have the required permissions to send
 	 *             messages on the specified channel
@@ -100,8 +101,8 @@ public class Bot {
 	 * @see MessageBuilder
 	 * @see IMessage
 	 */
-	public static void sendMessage(String message, IChannel channel) throws DiscordException, MissingPermissionsException, RateLimitException {
-		sendMessage(message, false, channel);
+	public static IMessage sendMessage(String message, IChannel channel) throws DiscordException, MissingPermissionsException, RateLimitException {
+		return sendMessage(message, false, channel);
 	}
 
 	/**
@@ -130,6 +131,7 @@ public class Bot {
 	 * @param channel
 	 *            The text channel to send it on. The bot must have permissions
 	 *            to post at this channel.
+	 * @return The message that was sent
 	 * @throws MissingPermissionsException
 	 *             If the bot doesn't have the required permissions to send
 	 *             messages on the specified channel
@@ -138,16 +140,17 @@ public class Bot {
 	 * @throws RateLimitException 
 	 * @see IMessage
 	 */
-	public static void sendMessage(String message, boolean tts, IChannel channel) throws DiscordException, MissingPermissionsException, RateLimitException {
+	public static IMessage sendMessage(String message, boolean tts, IChannel channel) throws DiscordException, MissingPermissionsException, RateLimitException {
 		setTyping(true, channel);
 		if (!message.equals("") && !message.equals(" ")) {
 			final MessageBuilder mb = new MessageBuilder(getClient()).withChannel(channel).withContent(message);
 			if (tts) {
 				mb.withTTS();
 			}
-			mb.build();
+			return mb.build();
 		}
 		setTyping(false, channel);
+		return null;
 	}
 
 	public static void reply(IMessage first, String message)

@@ -139,4 +139,57 @@ public final class AutomodUtil {
 		}
 		return false;
 	}
+
+	public static String stringToEmoji(final String s) {
+		String output = "";
+		
+		for (int i = 0; i < s.length(); ++i) {
+			output += characterToEmoji(s.charAt(i));
+		}
+		
+		return output;
+	}
+
+	public static String characterToEmoji(char c) {
+		if (c == '0') {
+			return ":zero:";
+		} else if (c == '1') {
+			return ":one:";
+		} else if (c == '2') {
+			return ":two:";
+		} else if (c == '3') {
+			return ":three:";
+		} else if (c == '4') {
+			return ":four:";
+		} else if (c == '5') {
+			return ":five:";
+		} else if (c == '6') {
+			return ":six:";
+		} else if (c == '7') {
+			return ":seven:";
+		} else if (c == '8') {
+			return ":eight:";
+		} else if (c == '9') {
+			return ":nine:";
+		} else if (c == '!') {
+			return ":exclamation:";
+		} else if (c == '?') {
+			return ":question:";
+		} else if (c == '.') {
+			return ":black_small_square:";
+		} else if (c == '#') {
+			return ":hash:";
+		} else if (c == '*') {
+			return ":asterick:";
+		} else if (c == '$') {
+			return ":heavy_dollar_sign:";
+		} else if (c == '+') {
+			return ":heavy_plus_sign:";
+		} else if (c == '-') {
+			return ":heavy_minus_sign:";
+		} else if (Character.isLetter(c)) {
+			return ":regional_indicator_" + Character.toString(c).toLowerCase() + ":";
+		}
+		return ":x:";
+	}
 }

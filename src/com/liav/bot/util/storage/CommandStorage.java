@@ -37,9 +37,14 @@ import com.liav.bot.interaction.commands.CategoryHandler.Category;
 import com.liav.bot.interaction.commands.Command;
 import com.liav.bot.interaction.commands.CommandHandler;
 import com.liav.bot.interaction.commands.interfaces.StringCommand;
+import com.liav.bot.interaction.games.BunnyGame;
+import com.liav.bot.interaction.games.FishingGame;
+import com.liav.bot.interaction.games.Game;
+import com.liav.bot.interaction.games.GameHandler;
 import com.liav.bot.interaction.user.UserInfo;
 import com.liav.bot.interaction.user.Users;
 import com.liav.bot.main.Bot;
+import com.liav.bot.main.Configuration;
 import com.liav.bot.main.tasks.TaskPool;
 import com.liav.bot.util.AutomodUtil;
 
@@ -377,7 +382,8 @@ public final class CommandStorage {
 						if (p.length == 0) {
 							return "Must have an amount and a user!";
 						} else if (p.length != 2) {
-							return "Invalid argument! Use `help give` to learn how this command work.";
+							return "Invalid argument! Use `" + Configuration.COMMAND_PREFIX
+									+ "help give` to learn how this command work.";
 						}
 
 						long amount = 0;
@@ -412,6 +418,90 @@ public final class CommandStorage {
 						return sendee.getName() + " has sent $" + amount + " to " + reciever.getName() + ".\n "
 								+ sendee.getName() + " now has $" + sendeeInfo.getMoney() + " and " + reciever.getName()
 								+ " now has $" + recieverInfo.getMoney();
+					}),
+			new Command("emojify", "Usage: `emojify [phrase]`\nConverts a phrase into emoji", "fun",
+					(final String[] p) -> {
+						if (p.length == 0) {
+							return "Must input a phrase!";
+						}
+
+						String output = "";
+
+						for (int i = 0; i < p.length; ++i) {
+							output += AutomodUtil.stringToEmoji(p[i]);
+							output += " ";
+						}
+
+						return output;
+					}),
+			new Command("game",
+					"Usage: `game start [game] [*optional*seconds to start]` or `game join` or `game list`\nCreate a new game or join one.\n`game list` shows the possible games you can play.",
+					"fun", (final String[] param, IMessage m) -> {
+						if (param.length == 0) {
+							return "Must include arguments.";
+						} else if (param[0].equals("start")) {
+							if (GameHandler.hasGame(m.getGuild())) {
+								return "Game already running!";
+							}
+
+							if (param.length < 2) {
+								return "Must have a game name for start";
+							}
+
+							Game game = null;
+							if (param[1].equals("bunny")) {
+								game = new BunnyGame();
+							} else if (param[1].equals("fish")) {
+								game = new FishingGame();
+							} else {
+								return "Invalid game. Use `" + Configuration.COMMAND_PREFIX
+										+ "game list` to view available games.";
+							}
+
+							if (param.length >= 3) {
+								try {
+									int gameTime = Integer.parseInt(param[2]);
+									if (gameTime < 5) {
+										return "Too short of a game time!";
+									} else if (gameTime > 30) {
+										return "Too long of a game time!";
+									}
+
+									game.setTimeUntilStart(gameTime * 1000);
+								} catch (NumberFormatException e) {
+									return "Game time must be a number";
+								}
+							} else {
+								game.setTimeUntilStart(Configuration.DEFAULT_GAME_STARTUP);
+							}
+
+							GameHandler.addGame(game, m.getChannel());
+							GameHandler.getGame(m.getGuild()).addUser(m.getAuthor());
+							;
+
+							return "Started game. Use `" + Configuration.COMMAND_PREFIX + "game join` to join.";
+						} else if (param[0].equals("join")) {
+							if (!GameHandler.hasGame(m.getGuild())) {
+								return "No game running!";
+							}
+
+							Game g = GameHandler.getGame(m.getGuild());
+
+							if (g.hasStarted()) {
+								return "The game has already started!";
+							} else if (g.getUsers().contains(m.getAuthor())) {
+								return "You are already in the game!";
+							}else if(g.getUsers().size() >= Configuration.MAX_GAME_SIZE){
+								return "There are too many people in this game already.";
+							}
+							g.addUser(m.getAuthor());
+
+							return "Joined the game!";
+						} else if (param[0].equals("list")) {
+							return "**Available games:**\nBunny - Totally legal bunny racing\nFish - Whoever gets the fish wins!";
+						}
+
+						return "Invalid argument.";
 					}),
 			new Command("leaderboard", "Usage: `leaderboard`\nView the richest people on this Discord!", "economy",
 					(final String[] p, final IMessage m) -> {

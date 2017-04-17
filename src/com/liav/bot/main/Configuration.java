@@ -19,6 +19,8 @@ public class Configuration {
 
 	public static final String USERS_FILE = "users.txt";
 	public static final String CONFIG_FILE = "config.txt";
+	
+	public static final int DEFAULT_GAME_STARTUP = 15000;
 	/**
 	 * Amount of milliseconds in a daily (one day)
 	 */
@@ -28,9 +30,13 @@ public class Configuration {
 	 * How many milliseconds it will take for tasks to get their
 	 * {@link Task#tick()} method called.
 	 */
-	public static final int UPDATE_RATE = 50;
+	public static final int UPDATE_RATE = 1000;
 
 	public static final long SAVE_TIME = 300000L;
+	
+	public static final int MAX_GAME_SIZE = 6;
+	
+	public static final int GAME_REWARD = 10;
 
 	public static Map<String, String> properties = new HashMap<>();
 

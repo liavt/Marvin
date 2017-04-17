@@ -13,7 +13,7 @@ public interface Task {
 	/**
 	 * Called once every {@value TaskPool#UPDATE_RATE}} ms.
 	 * 
-	 * @return Whether the task is completed. If false, it will be removed from
+	 * @return Whether the task is completed. If true, it will be removed from
 	 *         the task queue.
 	 */
 	public boolean tick();
