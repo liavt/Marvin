@@ -79,14 +79,14 @@ public class FishingGame extends Game {
 		} else if (Bot.random.nextBoolean()) {
 			--fishY;
 		}
-		
-		if(fishY < 0){
+
+		if (fishY < 0) {
 			fishY = 0;
 		}
 
-		if(Bot.random.nextBoolean()){
+		if (Bot.random.nextBoolean()) {
 			--fishX;
-		}else{
+		} else {
 			++fishX;
 		}
 
@@ -95,30 +95,31 @@ public class FishingGame extends Game {
 		} else if (fishX >= width - 1) {
 			fishX = width - 1;
 		}
-		
+
 		Boat winner = null;
 
 		if (fishY > HEIGHT) {
 			for (int i = 1; i < boats.size() + 1; ++i) {
-				if(fishX > (i-1) * WIDTH_STEP && fishX < i * WIDTH_STEP){
-					winner = boats.get((boats.size() - 1) -(i - 1));
-					if(winner.user == null){
+				if (fishX > (i - 1) * WIDTH_STEP && fishX < i * WIDTH_STEP) {
+					winner = boats.get((boats.size() - 1) - (i - 1));
+					if (winner.user == null) {
 						output += "Drats! The bot won!";
-					}else{
-						output += winner.user.getName() + " got the magic fish worth $"+Configuration.GAME_REWARD+"!";
+					} else {
+						output += winner.user.getName() + " got the magic fish worth $" + Configuration.GAME_REWARD
+								+ "!";
 						Users.getInfo(winner.user).addMoney(Configuration.GAME_REWARD);
 					}
 				}
 			}
 		}
-		
+
 		try {
 			message.edit(output);
 		} catch (MissingPermissionsException | RateLimitException | DiscordException e) {
 			e.printStackTrace();
 			Bot.incrementError();
 		}
-		
+
 		return winner != null;
 	}
 

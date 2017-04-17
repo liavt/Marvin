@@ -315,7 +315,7 @@ public final class CommandStorage {
 								+ "` commands executed." + "\nCurrent task pool size: `" + TaskPool.tasks() + "`";
 					}),
 			new Command("say",
-					"Usage: `say [*optional* -t][phrase]`\nMake the bot say a phrase\n-t makes the message utilize TTS (Text-to-Speech)",
+					"Usage: `say [*optional* tts][phrase]`\nMake the bot say a phrase\ntts makes the message utilize TTS (Text-to-Speech)",
 					"util", false, true, (final String[] p, final IMessage m) -> {
 						if (p.length < 1) {
 							return "Must have a parameter!";
@@ -336,7 +336,7 @@ public final class CommandStorage {
 						}
 
 						final boolean tts;
-						if (p[0].equals("-t")) {
+						if (p[0].equals("tts")) {
 							tts = true;
 						} else {
 							tts = false;
@@ -491,7 +491,7 @@ public final class CommandStorage {
 								return "The game has already started!";
 							} else if (g.getUsers().contains(m.getAuthor())) {
 								return "You are already in the game!";
-							}else if(g.getUsers().size() >= Configuration.MAX_GAME_SIZE){
+							} else if (g.getUsers().size() >= Configuration.MAX_GAME_SIZE) {
 								return "There are too many people in this game already.";
 							}
 							g.addUser(m.getAuthor());
@@ -528,6 +528,9 @@ public final class CommandStorage {
 						int i = 0;
 						for (Entry<IUser, UserInfo> e : leaderboard) {
 							out += (++i) + " - " + e.getKey().getName() + " with $" + e.getValue().getMoney() + "\n";
+							if (i >= 10) {
+								break;
+							}
 						}
 
 						return out;

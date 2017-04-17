@@ -1,6 +1,7 @@
 package com.liav.bot.interaction.commands.interfaces;
 
 import com.liav.bot.interaction.commands.CategoryHandler;
+import com.liav.bot.interaction.commands.CategoryHandler.Category;
 import com.liav.bot.interaction.commands.Command;
 import com.liav.bot.interaction.commands.CommandHandler;
 import com.liav.bot.util.AutomodUtil;
@@ -59,27 +60,23 @@ public interface StringCommand extends InteractiveCommand {
 			if (p.length <= 0 || p[0] == null) {
 				final boolean admin = AutomodUtil.isAdmin(m.getAuthor(), m.getChannel().getGuild());
 				final StringBuilder sb = new StringBuilder("Available Commands: \n");
-				int iteration = 0;
-				for (Command c : CommandStorage.commands) {
-					if ((!c.isAdminCommand())) {
-						sb.append("**").append(c.getName()).append("**	");
-						iteration++;
-						if (iteration % 8 == 0) {
-							sb.append('\n');
-						}
-					}
-				}
-				if (admin) {
-					sb.append("\nAdmin commands:\n");
-					for (Command c : CommandStorage.commands) {
-						if ((c.isAdminCommand())) {
-							sb.append("**").append(c.getName()).append("**	");
+				for (Category cat : CategoryHandler.getCategories()) {
+					int iteration = 0;
+					sb.append("\n__Category ").append(cat.getName()).append("__\n");
+					for (Command c : cat.getCommands()) {
+						if (!c.isAdminCommand()||(c.isAdminCommand()&&admin)) {
+							sb.append("**").append(c.getName());
+							if(c.isAdminCommand()&&admin){
+								sb.append("(admin)");
+							}
+							sb.append("**\t");
 							iteration++;
 							if (iteration % 8 == 0) {
 								sb.append('\n');
 							}
 						}
 					}
+					sb.append("\n");
 				}
 				return sb.append("\nUse `help [command]` to learn more about a specific command.\n\nThere are `")
 						.append(CategoryHandler.getCategories().length)
