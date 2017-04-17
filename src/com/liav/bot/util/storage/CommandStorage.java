@@ -440,7 +440,7 @@ public final class CommandStorage {
 						if (param.length == 0) {
 							return "Must include arguments.";
 						} else if (param[0].equals("start")) {
-							if (GameHandler.hasGame(m.getGuild())) {
+							if (GameHandler.hasGame(m.getChannel())) {
 								return "Game already running!";
 							}
 
@@ -476,16 +476,16 @@ public final class CommandStorage {
 							}
 
 							GameHandler.addGame(game, m.getChannel());
-							GameHandler.getGame(m.getGuild()).addUser(m.getAuthor());
+							GameHandler.getGame(m.getChannel()).addUser(m.getAuthor());
 							;
 
 							return "Started game. Use `" + Configuration.COMMAND_PREFIX + "game join` to join.";
 						} else if (param[0].equals("join")) {
-							if (!GameHandler.hasGame(m.getGuild())) {
+							if (!GameHandler.hasGame(m.getChannel())) {
 								return "No game running!";
 							}
 
-							Game g = GameHandler.getGame(m.getGuild());
+							Game g = GameHandler.getGame(m.getChannel());
 
 							if (g.hasStarted()) {
 								return "The game has already started!";

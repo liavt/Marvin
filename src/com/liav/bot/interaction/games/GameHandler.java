@@ -12,22 +12,22 @@ import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
 
 public class GameHandler {
-	private static Map<IGuild, Game> games = new HashMap<>();
+	private static Map<IChannel, Game> games = new HashMap<>();
 	
-	public static Map<IGuild, Game> getGames(){
+	public static Map<IChannel, Game> getGames(){
 		return games;
 	}
 	
-	public static boolean hasGame(final IGuild guild){
-		return games.containsKey(guild);
+	public static boolean hasGame(final IChannel c){
+		return games.containsKey(c);
 	}
 	
-	public static Game getGame(final IGuild guild){
-		return games.get(guild);
+	public static Game getGame(final IChannel c){
+		return games.get(c);
 	}
 	
 	public static void addGame(final Game g, final IChannel c){
-		games.put(c.getGuild(), g);
+		games.put(c, g);
 		TaskPool.addTask(()->{
 			if(!g.hasStarted()){
 				g.deductTime(Configuration.UPDATE_RATE);
@@ -44,7 +44,7 @@ public class GameHandler {
 			}
 			boolean result = g.tick();
 			if(result){
-				games.remove(c.getGuild());
+				games.remove(c);
 			}
 			return result;
 		});
