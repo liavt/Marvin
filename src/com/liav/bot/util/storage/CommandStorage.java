@@ -81,7 +81,7 @@ public final class CommandStorage {
 			}),
 			new Command("roll",
 					"Usage: `roll [*optional* bound]`\nImagine rolling the dice. Now imagine not actually rolling a die, but imaginarily rolling it. You will get it",
-					"math", (String[] param) -> {
+					"util", (String[] param) -> {
 						if (param.length <= 0 || param[0] == null) {
 							return "Rolled " + Bot.random.nextInt();
 						} else if (param.length > 1) {
@@ -187,7 +187,7 @@ public final class CommandStorage {
 				sb.append((int) Long.parseLong(id.substring(15, 16))).append("` hot singles in ").append(u.getName())
 						.append("\'s area").append("\n");
 				return sb.toString();
-			}), new Command("eval", "Usage: `eval [expression]`\nCalculates a mathmatical expression for you.", "math",
+			}), new Command("eval", "Usage: `eval [expression]`\nCalculates a mathmatical expression for you.", "util",
 					(final String[] param) -> {
 						if (param.length == 0) {
 							return "Must specify a mathmatical expression";
@@ -376,7 +376,14 @@ public final class CommandStorage {
 					(final String[] p, final IUser u) -> {
 						return "Your current balance is $" + Users.getInfo(u).getMoney();
 					}),
-			new Command("give", "Usage: `give [amount] [users]`\nGives a certain amount of money to someone", "economy",
+			new Command("coin","Usage: `coin`\nFlip a coin for heads or tails", "util",(final String[] p)->{
+				if(Bot.random.nextBoolean()){
+					return "Heads!";
+				}else{
+					return "Tails!";
+				}
+			}),
+			new Command("give", "Usage: `give [user] [amount]`\nGives a certain amount of money to someone", "economy",
 					(final String[] p, final IMessage m) -> {
 						if (p.length == 0) {
 							return "Must have an amount and a user!";
@@ -387,7 +394,7 @@ public final class CommandStorage {
 
 						long amount = 0;
 						try {
-							amount = Long.parseLong(p[0]);
+							amount = Long.parseLong(p[1]);
 						} catch (NumberFormatException e) {
 							return "Amount must be a number!";
 						}
@@ -397,7 +404,7 @@ public final class CommandStorage {
 						}
 
 						IUser sendee = m.getAuthor();
-						IUser reciever = AutomodUtil.getUser(p[1], m.getGuild());
+						IUser reciever = AutomodUtil.getUser(p[0], m.getGuild());
 						if (reciever == null) {
 							return "Invalid person to give money to.";
 						} else if (sendee.equals(reciever)) {

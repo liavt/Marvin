@@ -12,9 +12,7 @@ public abstract class Game {
 	
 	public Game(){
 	}
-	
-	public abstract String getInitialMessage();
-	
+		
 	public abstract boolean tick();
 	
 	public abstract void init();

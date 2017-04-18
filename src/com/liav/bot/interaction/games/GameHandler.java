@@ -33,7 +33,7 @@ public class GameHandler {
 				g.deductTime(Configuration.UPDATE_RATE);
 				if(g.getTimeUntilStart() <= 0){
 					try {
-						g.setMessage(Bot.sendMessage(g.getInitialMessage(), c));
+						g.setMessage(Bot.sendMessage("Starting game...", c));
 						g.init();
 					} catch (Exception e) {
 						Bot.incrementError();

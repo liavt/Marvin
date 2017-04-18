@@ -144,15 +144,12 @@ public class Bot {
 	public static IMessage sendMessage(String message, boolean tts, IChannel channel)
 			throws DiscordException, MissingPermissionsException, RateLimitException {
 		setTyping(true, channel);
-		if (!message.equals("") && !message.equals(" ")) {
-			final MessageBuilder mb = new MessageBuilder(getClient()).withChannel(channel).withContent(message);
-			if (tts) {
-				mb.withTTS();
-			}
-			return mb.build();
+		final MessageBuilder mb = new MessageBuilder(getClient()).withChannel(channel).withContent(message);
+		if (tts) {
+			mb.withTTS();
 		}
 		setTyping(false, channel);
-		return null;
+		return mb.build();
 	}
 
 	public static void reply(IMessage first, String message)

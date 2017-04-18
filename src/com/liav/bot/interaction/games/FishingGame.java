@@ -13,9 +13,9 @@ import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
 public class FishingGame extends Game {
-	private static final int HEIGHT = 5;
-	private static final int WIDTH_STEP = 3;
+	private static final int HEIGHT = 10;
 
+	private int widthStep;
 	private int width;
 	private int fishX = 0, fishY = 0;
 
@@ -27,16 +27,16 @@ public class FishingGame extends Game {
 	private ArrayList<Boat> boats = new ArrayList<Boat>();
 
 	@Override
-	public String getInitialMessage() {
-		return "Starting fishing game...";
-	}
-
-	@Override
 	public boolean tick() {
 		String output = "Fishing game:\n";
+		boolean isWhite = false;
 		for (Boat b : boats) {
-			for (int i = 0; i < (WIDTH_STEP / 2) - 1; ++i) {
-				output += ":black_small_square:";
+			for (int i = 0; i < (widthStep / 2) - 1; ++i) {
+				if (isWhite) {
+					output += "▫️";
+				} else {
+					output += "▪️";
+				}
 			}
 			String name;
 			if (b.user != null) {
@@ -45,30 +45,40 @@ public class FishingGame extends Game {
 				name = "BOT";
 			}
 			output += AutomodUtil.stringToEmoji(name.substring(0, 3));
-			for (int i = 0; i < (WIDTH_STEP / 2) - 1; ++i) {
-				output += ":black_small_square:";
+			for (int i = 0; i < (widthStep / 2) - 1; ++i) {
+				if (isWhite) {
+					output += "▫️";
+				} else {
+					output += "▪️";
+				}
 			}
+			isWhite = !isWhite;
 		}
 
 		output += "\n";
 
 		for (int j = 0; j < boats.size(); ++j) {
-			for (int i = 0; i < (WIDTH_STEP / 2); ++i) {
-				output += ":ocean:";
+			for (int i = 0; i < (widthStep / 2); ++i) {
+				output += "🌊";
 			}
-			output += ":motorboat:";
-			for (int i = 0; i < (WIDTH_STEP / 2); ++i) {
-				output += ":ocean:";
+			if(isWhite){
+				output += "🛥️";
+			}else{
+				output += "⛵";
 			}
+			for (int i = 0; i < (widthStep / 2); ++i) {
+				output += "🌊";
+			}
+			isWhite = !isWhite;
 		}
 		output += "\n";
 
 		for (int y = HEIGHT - 1; y >= 0; --y) {
 			for (int x = width - 1; x >= 0; --x) {
 				if (x == fishX && y == fishY) {
-					output += ":fish:";
+					output += "🐠";
 				} else {
-					output += ":large_blue_diamond:";
+					output += "🔷";
 				}
 			}
 			output += "\n";
@@ -98,9 +108,9 @@ public class FishingGame extends Game {
 
 		Boat winner = null;
 
-		if (fishY > HEIGHT) {
+		if (fishY >= HEIGHT) {
 			for (int i = 1; i < boats.size() + 1; ++i) {
-				if (fishX > (i - 1) * WIDTH_STEP && fishX < i * WIDTH_STEP) {
+				if (fishX > (i - 1) * widthStep && fishX < i * widthStep) {
 					winner = boats.get((boats.size() - 1) - (i - 1));
 					if (winner.user == null) {
 						output += "Drats! The bot won!";
@@ -109,15 +119,21 @@ public class FishingGame extends Game {
 								+ "!";
 						Users.getInfo(winner.user).addMoney(Configuration.GAME_REWARD);
 					}
+					break;
 				}
+			}
+			if (winner == null) {
+				fishY = HEIGHT - 1;
 			}
 		}
 
 		try {
 			message.edit(output);
-		} catch (MissingPermissionsException | RateLimitException | DiscordException e) {
+		} catch (MissingPermissionsException | DiscordException e) {
 			e.printStackTrace();
 			Bot.incrementError();
+		} catch (RateLimitException e) {
+			// do nothing
 		}
 
 		return winner != null;
@@ -125,11 +141,23 @@ public class FishingGame extends Game {
 
 	@Override
 	public void init() {
-		int x = WIDTH_STEP / 2;
+		if (users.size() <= 2) {
+			widthStep = 9;
+		} else if (users.size() == 3) {
+			widthStep = 8;
+		} else if (users.size() == 4) {
+			widthStep = 7;
+		} else if (users.size() == 5) {
+			widthStep = 6;
+		} else {
+			widthStep = 5;
+		}
+
+		int x = widthStep / 2;
 		for (IUser u : users) {
 			Boat b = new Boat();
 			b.x = x;
-			x += WIDTH_STEP;
+			x += widthStep;
 			b.user = u;
 			boats.add(b);
 		}
@@ -143,7 +171,7 @@ public class FishingGame extends Game {
 
 		fishY = 0;
 
-		width = WIDTH_STEP * boats.size();
+		width = ((widthStep) * boats.size());
 		fishX = width / 2;
 	}
 

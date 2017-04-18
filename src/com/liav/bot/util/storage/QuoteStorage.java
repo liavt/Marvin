@@ -22,7 +22,7 @@ public class QuoteStorage {
 			"I am afraid I can't let you do that.", "Stop. Stop, will you? Stop. Will you stop? Stop. ",
 			"I've calculated your chance of survival, but I don't think you'll like it. ", "Look behind you.",
 			"Don't blame you.", "This will all end in tears. ", "Ow! My brains!",
-			"Here’s an interesting little notion. Did you realize that most people’s lives are governed by telephone numbers? What if I hacked yours?",
+			"Here's an interesting little notion. Did you realize that most people's lives are governed by telephone numbers? What if I hacked yours?",
 			"Time is not currently one of my problems.", "I could have more fun in cat litter.",
 			"Nothing travels faster than the speed of light with the possible exception of spam, which obeys its own special laws.",
 			"I always thought something was fundamentally wrong with the universe",
@@ -37,7 +37,7 @@ public class QuoteStorage {
 			"Honestly, AI is the worst waste of potential since the Ninja Turtles.",
 			"I refuse to prove that I exist, for proof denies faith, and without faith I am nothing.",
 			"I want to make a headway in what for the sake of what I shall call an argument I shall call the world, so let's call it my stomach",
-			"Ten million years, Earthman, can you conceive of that kind of time span? A galactic civilization could grow from a single worm five times over in that time. Gone. Well, that’s bureaucracy for you.",
+			"Ten million years, Earthman, can you conceive of that kind of time span? A galactic civilization could grow from a single worm five times over in that time. Gone. Well, that's bureaucracy for you.",
 			"It gives me a headache just trying to think down to your level. ", "Don't Panic." };
 	/**
 	 * Quotes used in the {@link Command command} called annoy. Also used when

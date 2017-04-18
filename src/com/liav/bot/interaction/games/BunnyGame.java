@@ -36,11 +36,6 @@ public class BunnyGame extends Game {
 	}
 
 	@Override
-	public String getInitialMessage() {
-		return "Starting to race bunnies...";
-	}
-
-	@Override
 	public boolean tick() {
 		String output = "Bunny racing:\n";
 		
@@ -79,9 +74,11 @@ public class BunnyGame extends Game {
 		
 		try {
 			message.edit(output);
-		} catch (MissingPermissionsException | RateLimitException | DiscordException e) {
+		} catch (MissingPermissionsException | DiscordException e) {
 			e.printStackTrace();
 			Bot.incrementError();
+		} catch(RateLimitException e){
+			//do nothing
 		}
 		return winner != null;
 	}
