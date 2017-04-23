@@ -14,14 +14,13 @@
 			<id>sonatype-snapshot</id>
 			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
 		</repository>
+		<repository> 
+			<id>jcenter</id>
+			<url>http://jcenter.bintray.com</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
-		<dependency>
-            <groupId>com.github.dwursteisen</groupId>
-            <artifactId>image-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
@@ -46,6 +45,7 @@
 			<groupId>com.github.austinv11</groupId>
 			<artifactId>Discord4j</artifactId>
 			<version>2.7.0</version>
+			<classifier>shaded</classifier>
 		</dependency>
 	</dependencies>
 
@@ -53,6 +53,19 @@
 		<directory>target</directory>
 		<sourceDirectory>src/</sourceDirectory>
 		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>com.liav.bot.main.Bot</mainClass>
+						</manifest>
+					</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -63,6 +76,14 @@
 						</manifest>
 					</archive>
 				</configuration>
+			</plugin>
+			<plugin>
+			    <groupId>org.codehaus.mojo</groupId>
+			    <artifactId>exec-maven-plugin</artifactId>
+			    <version>1.6.0</version>
+			    <configuration>
+				<mainClass>>com.liav.bot.main.Bot</mainClass>
+			    </configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>

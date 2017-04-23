@@ -8,9 +8,6 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import com.github.imgur.ImgUr;
-import com.github.imgur.api.image.ImageRequest;
-import com.github.imgur.api.image.ImageResponse;
 import com.liav.bot.interaction.user.UserInfo;
 import com.liav.bot.interaction.user.Users;
 import com.liav.bot.main.Bot;

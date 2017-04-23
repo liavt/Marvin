@@ -568,7 +568,11 @@ public final class CommandStorage {
 							return "You do not have enough money to gamble $" + amount + "!";
 						}
 
-						int success = -2;
+						int success = -1;
+						//make it harder the more money you have
+						for(long i = info.getMoney();i>=10;i = i / 10){
+							--success;
+						}
 
 						String roll = Long.toString(Math.abs(Bot.random.nextLong()));
 						String ID = m.getAuthor().getID();
@@ -591,10 +595,10 @@ public final class CommandStorage {
 							output = "Oh no! You lost it all.";
 						} else if (success == 1) {
 							output = "You didn\'t lose or gain anything.";
-						} else if (success > 1 && success < 4) {
-							reward = (long) Math.ceil(amount * (1.0 + (success * 0.3)));
+						} else if (success > 1 && success < 5) {
+							reward = (long) Math.ceil(amount * (1.0 + (success * 0.25)));
 							output = "You got some money! ";
-						} else if (success >= 4) {
+						} else if (success >= 5) {
 							output = "JACKPOT! ";
 						}
 
