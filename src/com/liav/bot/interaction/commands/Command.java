@@ -34,6 +34,8 @@ public class Command {
 	private final AdvancedCommand action;
 	private final boolean tts, admin;
 
+	private final String[] aliases;
+	
 	/**
 	 * Get whether only admin users can use this command
 	 * 
@@ -41,6 +43,10 @@ public class Command {
 	 */
 	public boolean isAdminCommand() {
 		return admin;
+	}
+	
+	public String[] getAliases(){
+		return aliases;
 	}
 
 	/**
@@ -121,7 +127,15 @@ public class Command {
 	 * @return The help text as specified in the construcotr.
 	 */
 	public String getHelpText() {
-		return tts ? help + "\n*Sends a TTS message*" : help;
+		String output = help;
+		if(tts){
+			output += "\n*Sends a TTS message*";
+		}
+		
+		if(aliases.length > 0){
+			output += "\nAliases: **"+String.join("**, **",aliases) +"**";
+		}
+		return output;
 	}
 
 	/**
@@ -148,7 +162,7 @@ public class Command {
 	 *            command parameters.
 	 */
 	public Command(String n, String h, String cat, boolean tts, boolean admin, InteractiveCommand a) {
-		this(n, h, cat, false, admin, (AdvancedCommand) a);// the cast because
+		this(n, h, cat, false, admin, (AdvancedCommand) a, "");// the cast because
 		// otherwise the compiler
 		// doesnt know what
 		// constructor to choose
@@ -204,6 +218,10 @@ public class Command {
 	public Command(String n, String h, String cat, InteractiveCommand a) {
 		this(n, h, cat, false, a);
 	}
+	
+	public Command(String n, String h, String cat, InteractiveCommand a, String aliases) {
+		this(n, h, cat, false, a, aliases);
+	}
 
 	/**
 	 * Overloading constructor, and using a {@link StringCommand} instead of an
@@ -229,7 +247,7 @@ public class Command {
 	 *            command parameters.
 	 */
 	public Command(String n, String h, String cat, boolean tts, boolean admin, StringCommand a) {
-		this(n, h, cat, tts, admin, (AdvancedCommand) a);
+		this(n, h, cat, tts, admin, (AdvancedCommand) a, "");
 	}
 
 	/**
@@ -327,8 +345,12 @@ public class Command {
 	 * @see StringCommand
 	 * @see StringCommand#getHelpCommand()
 	 */
+	public Command(String n, String h, String cat, boolean tts, AdvancedCommand a, String aliases) {
+		this(n, h, cat, tts, false, a, aliases);
+	}
+	
 	public Command(String n, String h, String cat, boolean tts, AdvancedCommand a) {
-		this(n, h, cat, tts, false, a);
+		this(n, h, cat, tts, false, a, "");
 	}
 
 	/**
@@ -358,12 +380,21 @@ public class Command {
 	 * @see StringCommand
 	 * @see StringCommand#getHelpCommand()
 	 */
-	public Command(String n, String h, String cat, boolean tts, boolean admin, AdvancedCommand a) {
+	public Command(String n, String h, String cat, boolean tts, boolean admin, AdvancedCommand a, String aliases) {
 		this.name = n;
 		this.action = a;
 		this.help = h;
 		this.tts = tts;
 		this.category = cat;
 		this.admin = admin;
+		this.aliases = aliases.split(",");
+	}
+
+	public Command(String n, String h, String cat, StringCommand a, String aliases) {
+		this(n,h,cat,false,false,a,aliases);
+	}
+	
+	public Command(String n, String h, String cat, AdvancedCommand a, String aliases) {
+		this(n,h,cat,false,false,a,aliases);
 	}
 }

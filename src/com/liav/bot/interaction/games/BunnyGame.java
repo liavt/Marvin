@@ -2,11 +2,8 @@ package com.liav.bot.interaction.games;
 
 import java.util.ArrayList;
 
-import com.liav.bot.interaction.user.Users;
 import com.liav.bot.main.Bot;
-import com.liav.bot.main.Configuration;
 
-import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
@@ -44,18 +41,18 @@ public class BunnyGame extends Game {
 			b.tick();
 			for(int i = 0;i<10;++i){
 				if(i < b.progress){
-					output += ":black_small_square:";
+					output += "▪️";
 				}else if(i == b.progress){
-					output += ":rabbit: ";
+					output += "🐰";
 				}else{
-					output += ":white_small_square:";
+					output += "▫️";
 				}
 			}
-			output += ":fishing_pole_and_fish: ";
+			output += "🎣 ";
 			if(b.user != null){
 				output += b.user.getName();
 			}else{
-				output += ":rabbit2:";
+				output += "🐇";
 			}
 			output += "\n";
 			if(b.progress >= 10){
@@ -64,12 +61,7 @@ public class BunnyGame extends Game {
 		}
 		
 		if(winner != null){
-			if(winner.user == null){
-				output += "Oh no! The evil bunny won!";
-			}else{
-				output += "We have a winner! "+winner.user.getName()+" has won $"+Configuration.GAME_REWARD +"!";
-				Users.getInfo(winner.user).addMoney(Configuration.GAME_REWARD);
-			}
+			win(winner.user, message.getChannel());
 		}
 		
 		try {
@@ -80,6 +72,7 @@ public class BunnyGame extends Game {
 		} catch(RateLimitException e){
 			//do nothing
 		}
+		
 		return winner != null;
 	}
 
@@ -95,6 +88,11 @@ public class BunnyGame extends Game {
 			b.user = null;
 			bunnies.add(b);
 		}
+	}
+
+	@Override
+	public String getName() {
+		return "Bunny Racing";
 	}
 
 }

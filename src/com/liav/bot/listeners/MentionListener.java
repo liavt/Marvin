@@ -1,13 +1,12 @@
 package com.liav.bot.listeners;
 
 import sx.blah.discord.api.events.IListener;
-import sx.blah.discord.handle.impl.events.MentionEvent;
+import sx.blah.discord.handle.impl.events.guild.channel.message.MentionEvent;
 import sx.blah.discord.handle.obj.IMessage;
 
 import com.liav.bot.interaction.commands.Command;
 import com.liav.bot.interaction.commands.CommandHandler;
 import com.liav.bot.main.Bot;
-import com.liav.bot.util.AutomodUtil;
 import com.liav.bot.util.storage.CommandStorage;
 
 /**

@@ -1,13 +1,13 @@
 package com.liav.bot.listeners;
 
 import sx.blah.discord.api.events.IListener;
-import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
+import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IMessage;
 
 import com.liav.bot.interaction.commands.Command;
 import com.liav.bot.interaction.commands.CommandHandler;
+import com.liav.bot.main.AutomodUtil;
 import com.liav.bot.main.Bot;
-import com.liav.bot.util.AutomodUtil;
 import com.liav.bot.util.storage.CommandStorage;
 
 /**
@@ -30,7 +30,7 @@ public class MessageListener implements IListener<MessageReceivedEvent> {
 					&& AutomodUtil.isAdmin(event.getMessage().getAuthor(), event.getMessage().getGuild())) {
 				Bot.sendMessage(CommandHandler.handleDM(event.getMessage().getContent()),event.getMessage().getChannel());
 			} else if (message.startsWith(CommandHandler.getCommandPrefix())) {
-				CommandHandler.executeCommand(1, event.getMessage());
+				CommandHandler.executeCommand(CommandHandler.getCommandPrefix().length(), event.getMessage());
 			}
 		} catch (Throwable t) {
 			Bot.incrementError();

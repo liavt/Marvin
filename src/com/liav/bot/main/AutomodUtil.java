@@ -1,17 +1,11 @@
-package com.liav.bot.util;
+package com.liav.bot.main;
 
-import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-
-import com.liav.bot.interaction.user.UserInfo;
-import com.liav.bot.interaction.user.Users;
-import com.liav.bot.main.Bot;
-import com.liav.bot.main.Configuration;
 
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IRole;
@@ -83,8 +77,9 @@ public final class AutomodUtil {
 	 */
 	public static IUser getUser(String s, IGuild g) {
 		for (IUser u : g.getUsers()) {
-			if (u.getID().equals(s) || u.getDiscriminator().equals(s) || ("<@" + u.getID() + ">").equals(s)
-					|| ("<@!" + u.getID() + ">").equals(s)) {
+			if (s.equals(u.getStringID()) || u.getName().equalsIgnoreCase(s) || u.getDisplayName(g).equalsIgnoreCase(s)
+					|| u.getDiscriminator().equalsIgnoreCase(s) || u.mention(false).equals(s)
+					|| u.mention(true).equals(s)) {
 				return u;
 			}
 		}
@@ -123,7 +118,8 @@ public final class AutomodUtil {
 	 * @return Whether the bot is considered an admin.
 	 */
 	public static boolean isAdmin(IUser i, IGuild g) {
-		if (i.getID().equals(Configuration.properties.get("OWNER"))) return true;
+		if (i.getLongID() == (Long.parseLong(Configuration.properties.get("OWNER"))))
+			return true;
 		final List<IRole> l = i.getRolesForGuild(g);
 
 		for (IRole r : l) {
@@ -139,54 +135,49 @@ public final class AutomodUtil {
 
 	public static String stringToEmoji(final String s) {
 		String output = "";
-		
+
 		for (int i = 0; i < s.length(); ++i) {
 			output += characterToEmoji(s.charAt(i));
 		}
-		
+
 		return output;
 	}
 
 	public static String characterToEmoji(char c) {
-		if (c == '0') {
-			return ":zero:";
-		} else if (c == '1') {
-			return ":one:";
-		} else if (c == '2') {
-			return ":two:";
-		} else if (c == '3') {
-			return ":three:";
-		} else if (c == '4') {
-			return ":four:";
-		} else if (c == '5') {
-			return ":five:";
-		} else if (c == '6') {
-			return ":six:";
-		} else if (c == '7') {
-			return ":seven:";
-		} else if (c == '8') {
-			return ":eight:";
-		} else if (c == '9') {
-			return ":nine:";
+		if (Character.isDigit(c)) {
+			return c + "\u20E3";
 		} else if (c == '!') {
-			return ":exclamation:";
+			return "❕";
 		} else if (c == '?') {
-			return ":question:";
+			return "❔";
 		} else if (c == '.') {
-			return ":black_small_square:";
+			return "▪";
 		} else if (c == '#') {
-			return ":hash:";
+			return "#⃣";
 		} else if (c == '*') {
-			return ":asterick:";
+			return "✳";
 		} else if (c == '$') {
-			return ":heavy_dollar_sign:";
+			return "💲";
 		} else if (c == '+') {
-			return ":heavy_plus_sign:";
+			return "➕";
 		} else if (c == '-') {
-			return ":heavy_minus_sign:";
+			return "➖";
+		} else if (c == '>') {
+			return "▶";
+		} else if (c == '<') {
+			return "◀";
+		} else if (c == ',') {
+			return "🌙";
+		} else if (c == '^') {
+			return "🔼";
+		} else if (c == ' ') {
+			return " ";
 		} else if (Character.isLetter(c)) {
-			return ":regional_indicator_" + Character.toString(c).toLowerCase() + ":";
+			// zero width space to prevent the regional indicators to become
+			// flags
+			return "​\u200B" + new String(Character.toChars("🇦".codePointAt(0)
+					+ (Character.toString(Character.toLowerCase(c)).codePointAt(0) - "a".codePointAt(0))));
 		}
-		return ":x:";
+		return "❌";
 	}
 }

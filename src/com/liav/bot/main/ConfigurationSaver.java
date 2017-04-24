@@ -1,7 +1,5 @@
 package com.liav.bot.main;
 
-import com.liav.bot.main.tasks.TaskPool;
-
 public class ConfigurationSaver implements Runnable {
 	@Override
 	public void run() {

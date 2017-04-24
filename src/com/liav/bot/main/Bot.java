@@ -1,12 +1,9 @@
 package com.liav.bot.main;
 
-import java.io.FileNotFoundException;
 import java.security.SecureRandom;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.apache.log4j.BasicConfigurator;
 
 import com.liav.bot.interaction.commands.Command;
 import com.liav.bot.interaction.commands.CommandHandler;
@@ -19,15 +16,13 @@ import com.liav.bot.main.tasks.TaskExecutor;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.events.EventDispatcher;
 import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.handle.impl.obj.Role;
 import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MessageBuilder;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
+import sx.blah.discord.util.RequestBuffer;
 
 /**
  * Main class which controls the bot.
@@ -68,7 +63,7 @@ public class Bot {
 		// the
 		// discord
 		// client
-		final IDiscordClient client = new ClientBuilder().withToken(token).login();
+		final IDiscordClient client = new ClientBuilder().withToken(token).withRecommendedShardCount().login();
 
 		return client;
 	}
@@ -115,9 +110,7 @@ public class Bot {
 	 *            Which channel the bot should be typing on.
 	 */
 	public static void setTyping(boolean t, IChannel c) {
-		if (c.getTypingStatus() != t) {
-			c.toggleTypingStatus();
-		}
+		c.setTypingStatus(t);
 	}
 
 	/**
@@ -142,20 +135,34 @@ public class Bot {
 	 * @see IMessage
 	 */
 	public static IMessage sendMessage(String message, boolean tts, IChannel channel)
-			throws DiscordException, MissingPermissionsException, RateLimitException {
+			throws DiscordException, MissingPermissionsException {
 		setTyping(true, channel);
 		final MessageBuilder mb = new MessageBuilder(getClient()).withChannel(channel).withContent(message);
 		if (tts) {
 			mb.withTTS();
 		}
 		setTyping(false, channel);
-		return mb.build();
+		//retry sending
+		try{
+			return mb.build();
+		}catch(RateLimitException e){
+			try {
+				Thread.sleep(Configuration.RATE_LIMIT_RETRY);
+			} catch (InterruptedException e1) {
+				Bot.incrementError();
+				e1.printStackTrace();
+			}
+			//retry sending if it failed
+			return mb.build();
+		}
 	}
 
 	public static void reply(IMessage first, String message)
-			throws MissingPermissionsException, DiscordException, RateLimitException {
+			throws MissingPermissionsException, DiscordException{
 		setTyping(true, first.getChannel());
-		first.reply(message);
+		RequestBuffer.request(()->{
+			first.reply(message);
+		});
 		setTyping(false, first.getChannel());
 	}
 

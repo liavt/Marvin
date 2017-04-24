@@ -4,22 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
+
 import java.net.URL;
-import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+
 import java.util.Vector;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.script.ScriptException;
 
@@ -43,20 +35,17 @@ import com.liav.bot.interaction.games.Game;
 import com.liav.bot.interaction.games.GameHandler;
 import com.liav.bot.interaction.user.UserInfo;
 import com.liav.bot.interaction.user.Users;
+import com.liav.bot.main.AutomodUtil;
 import com.liav.bot.main.Bot;
 import com.liav.bot.main.Configuration;
 import com.liav.bot.main.tasks.TaskPool;
-import com.liav.bot.util.AutomodUtil;
 
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.util.DiscordException;
+import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.RateLimitException;
 import sx.blah.discord.util.MissingPermissionsException;
-import sx.blah.discord.util.audio.AudioPlayer;
 
 /**
  * Static class which contains all the commands for use by the bot. Located here
@@ -80,7 +69,7 @@ public final class CommandStorage {
 				return "newfag is NOT a command and will NEVER be a command";
 			}),
 			new Command("roll",
-					"Usage: `roll [*optional* bound]`\nImagine rolling the dice. Now imagine not actually rolling a die, but imaginarily rolling it. You will get it",
+					"Usage: `roll [*optional* bound]`\nGives a random number.\nIf an argument is provided, gives a random number between 0 and *bound*",
 					"util", (String[] param) -> {
 						if (param.length <= 0 || param[0] == null) {
 							return "Rolled " + Bot.random.nextInt();
@@ -92,7 +81,7 @@ public final class CommandStorage {
 							return "Invalid number";
 						}
 						return "Rolled a `" + Bot.random.nextInt(number) + "` out of `" + param[0] + "`";
-					}),
+					}, "random,rand,dice"),
 			new Command("compatible",
 					"Usage: `compatible [user1] [*optional* user2]\nTests the compatibility of 2 people", "fun",
 					(String[] param, IMessage c) -> {
@@ -116,8 +105,8 @@ public final class CommandStorage {
 							return "You need 2 different people!";
 						}
 
-						double user1ID = Long.parseLong(user1.getID());
-						double user2ID = Long.parseLong(user2.getID());
+						double user1ID = user1.getLongID();
+						double user2ID = user2.getLongID();
 
 						double rating1 = (user1ID / user2ID) * 10.0;
 						double rating2 = (user2ID / user1ID) * 10.0;
@@ -126,7 +115,7 @@ public final class CommandStorage {
 
 						return "The compatibility of " + user1.getName() + " and " + user2.getName() + " is "
 								+ finalRating.substring(0, finalRating.indexOf('.') + 2) + "/10.0";
-					}),
+					}, "compat"),
 			new Command("reverse", "Usage: `reverse [phrase]`\nReverses a string", "util", (String[] param) -> {
 				if (param.length == 0) {
 					return "Must input a phrase";
@@ -174,7 +163,7 @@ public final class CommandStorage {
 					return param[0] + " cannot be hacked, as " + param[0]
 							+ " couldn\'t be found in the triangulating mainframe.";
 				}
-				final String id = u.getID();
+				final String id = u.getStringID();
 				sb.append("Succesfully hacked ").append(u.getName()).append(". Results are as followed: ")
 						.append("\n`");
 				sb.append(AutomodUtil.timeToString((int) Long.parseLong(id.substring(0, 7)))).append("` of porn")
@@ -213,9 +202,9 @@ public final class CommandStorage {
 							Bot.incrementError();
 							return "Invalid expression!";
 						}
-					}),
+					}, "evaluate,calculate"),
 			new Command("category",
-					"Usage: `category [*optional* category name]`\nLists all command categories, or shows all commands in a specified category",
+					"Usage: `category` or `category [name]`\nLists all command categories, or shows all commands in a specified category",
 					"meta", (final String[] param) -> {
 						final StringBuilder sb = new StringBuilder();
 						if (param.length <= 0) {
@@ -232,9 +221,12 @@ public final class CommandStorage {
 									sb.append("\n");
 								}
 							}
-							sb.append("\nUse `category [name]` to view all commands in a certain category ");
+							sb.append("\nUse `");
+							sb.append(CommandHandler.getCommandPrefix());
+							sb.append("category [name]` to view all commands in a certain category ");
 						} else if (param.length >= 2) {
-							return "Can only have one parameter. Refer to `help category` for more.";
+							return "Can only have one parameter. Refer to `" + CommandHandler.getCommandPrefix()
+									+ "help category` for more.";
 						} else {
 							final Category c = CategoryHandler.getCategory(param[0]);
 							if (c == null) {
@@ -253,8 +245,9 @@ public final class CommandStorage {
 						}
 						return sb.toString();
 					}),
-			new Command("fate", "Usage: `fate [*optional* player]`\nTells the fate of a person.", "fun",
-					(final String[] p, final IMessage m) -> {
+			new Command("fate",
+					"Usage: `fate [*optional* user]`\nTells the fate of a person.\nIf no user is provided, gives a fate for yourself.",
+					"fun", (final String[] p, final IMessage m) -> {
 						final IUser u;
 						if (p.length >= 1) {
 							u = AutomodUtil.getUser(p[0], m.getGuild());
@@ -287,7 +280,7 @@ public final class CommandStorage {
 
 					final String[] array = strings.toArray(new String[strings.size()]);
 					final int rnd = Bot.random.nextInt(array.length);
-					finRes = "http://i.imgur.com/" + (array[rnd]).toString() + ".png";
+					finRes = "https://i.imgur.com/" + (array[rnd]).toString() + ".png";
 
 				} catch (IOException e) {
 					Bot.incrementError();
@@ -300,12 +293,12 @@ public final class CommandStorage {
 				}
 
 				return finRes;
-			}), new Command("info", "Usage: `infot`\nLearn about the bot", "meta",
-					(final String[] p, final IUser user) -> {
-						return "Use `"+CommandHandler.getCommandPrefix()+"help` to view commands.\nCreated by Liav Turkia with :heart:\nSource code at https://www.github.com/liavt/marvin\nTo invite your server, open this link:\nhttps://discordapp.com/oauth2/authorize?client_id=199977541635801088&scope=bot&permissions=271711254";
-					}),
-			new Command("status", "Usage: `status`\nView uptime, errors, and various debug values", "meta", false, true,
-					(final String[] p, final IUser u) -> {
+			}),
+			new Command("info", "Usage: `info`\nLearn about the bot", "meta", (final String[] p, final IUser user) -> {
+				return "Use `" + CommandHandler.getCommandPrefix()
+						+ "help` to view commands.\nCreated by Liav Turkia with :heart:\nSource code at https://www.github.com/liavt/marvin\nTo invite your server, open this link:\nhttps://discordapp.com/oauth2/authorize?client_id=199977541635801088&scope=bot&permissions=271711254";
+			}, "about"), new Command("status", "Usage: `status`\nView uptime, errors, and various debug values", "meta",
+					false, true, (final String[] p, final IUser u) -> {
 						return "Up for `"
 								+ AutomodUtil.timeToString(Integer.parseInt(String.format("%d",
 										TimeUnit.MILLISECONDS
@@ -314,7 +307,7 @@ public final class CommandStorage {
 								+ "` commands executed." + "\nCurrent task pool size: `" + TaskPool.tasks() + "`";
 					}),
 			new Command("say",
-					"Usage: `say [*optional* tts][phrase]`\nMake the bot say a phrase\ntts makes the message utilize TTS (Text-to-Speech)",
+					"Usage: `say [phrase]` or `say tts [phrase]*\nMake the bot say a phrase\nOptional parameter `tts` makes the message utilize TTS (Text-to-Speech)",
 					"util", false, true, (final String[] p, final IMessage m) -> {
 						if (p.length < 1) {
 							return "Must have a parameter!";
@@ -361,7 +354,7 @@ public final class CommandStorage {
 						}
 
 						return "";
-					}),
+					}, "talk"),
 			new Command("ping", "Usage: `ping`\nPong!", "fun", (final String[] p, final IMessage m) -> {
 				return "Pong!";
 			}), new Command("pong", "`Usage: `pong`\nWhen ping isn't good enough for you", "fun",
@@ -372,19 +365,23 @@ public final class CommandStorage {
 				return "Dong!";
 			}), new Command("dong", "Usage: `dong`\nDing dong!", "fun", (final String[] p, final IMessage m) -> {
 				return "( ͡° ͜ʖ ͡°) Ding!";
-			}), new Command("balance", "Usage: `balance`\nCheck your current balance", "economy",
-					(final String[] p, final IUser u) -> {
+			}),
+			new Command(
+					"balance", "Usage: `balance`\nCheck your current balance.\nSee also `"
+							+ CommandHandler.getCommandPrefix() + "profile`",
+					"economy", (final String[] p, final IUser u) -> {
 						return "Your current balance is $" + Users.getInfo(u).getMoney();
-					}),
-			new Command("coin","Usage: `coin`\nFlip a coin for heads or tails", "util",(final String[] p)->{
-				if(Bot.random.nextBoolean()){
+					}, "account,money,bank"),
+			new Command("coin", "Usage: `coin`\nFlip a coin for heads or tails", "util", (final String[] p) -> {
+				if (Bot.random.nextBoolean()) {
 					return "Heads!";
-				}else{
+				} else {
 					return "Tails!";
 				}
-			}),
-			new Command("give", "Usage: `give [user] [amount]`\nGives a certain amount of money to someone", "economy",
-					(final String[] p, final IMessage m) -> {
+			}, "flip"),
+			new Command("give",
+					"Usage: `give [user] [amount]` or `give [amount] [user]`\nGives a certain amount of money to someone",
+					"economy", (final String[] p, final IMessage m) -> {
 						if (p.length == 0) {
 							return "Must have an amount and a user!";
 						} else if (p.length != 2) {
@@ -392,19 +389,28 @@ public final class CommandStorage {
 									+ "help give` to learn how this command work.";
 						}
 
+						IUser sendee = m.getAuthor();
+						IUser reciever = null;
+
 						long amount = 0;
 						try {
 							amount = Long.parseLong(p[1]);
-						} catch (NumberFormatException e) {
-							return "Amount must be a number!";
+
+							reciever = AutomodUtil.getUser(p[0], m.getGuild());
+						} catch (NumberFormatException e1) {
+							try {
+								amount = Long.parseLong(p[0]);
+							} catch (NumberFormatException e2) {
+								return "Amount must be a number!";
+							}
+
+							reciever = AutomodUtil.getUser(p[1], m.getGuild());
 						}
 
 						if (amount <= 0) {
 							return "Amount must be greater than 0!";
 						}
 
-						IUser sendee = m.getAuthor();
-						IUser reciever = AutomodUtil.getUser(p[0], m.getGuild());
 						if (reciever == null) {
 							return "Invalid person to give money to.";
 						} else if (sendee.equals(reciever)) {
@@ -424,7 +430,7 @@ public final class CommandStorage {
 						return sendee.getName() + " has sent $" + amount + " to " + reciever.getName() + ".\n "
 								+ sendee.getName() + " now has $" + sendeeInfo.getMoney() + " and " + reciever.getName()
 								+ " now has $" + recieverInfo.getMoney();
-					}),
+					}, "pay"),
 			new Command("emojify", "Usage: `emojify [phrase]`\nConverts a phrase into emoji", "fun",
 					(final String[] p) -> {
 						if (p.length == 0) {
@@ -439,15 +445,75 @@ public final class CommandStorage {
 						}
 
 						return output;
+					}, "emoji"),
+			new Command("level", "Usage: `level` or `level [user]`\nView your level or someone elses", "meta",
+					(final String[] p, IMessage m) -> {
+						IUser u = m.getAuthor();
+						if (p.length >= 1) {
+							u = AutomodUtil.getUser(p[0], m.getGuild());
+						}
+
+						if (u == null) {
+							return "Invalid user!";
+						}
+
+						UserInfo info = Users.getInfo(u);
+
+						return u.getName() + " is level " + info.getLevel() + " with " + info.getXp() + "/"
+								+ info.getXpUntilNextLevel() + " XP";
+					}, "xp,experience,progress"),
+			new Command("profile", "Usage: `profile` or `profile [user]`\nView your own profile or someone elses.",
+					"meta", (final String[] p, IMessage m) -> {
+						IUser u = m.getAuthor();
+						if (p.length >= 1) {
+							u = AutomodUtil.getUser(p[0], m.getGuild());
+						}
+
+						if (u == null) {
+							return "Invalid user!";
+						}
+
+						UserInfo info = Users.getInfo(u);
+
+						EmbedBuilder e = new EmbedBuilder();
+						e.withAuthorName(u.getName());
+						e.withAuthorIcon(u.getAvatarURL());
+						e.withThumbnail(u.getAvatarURL());
+						e.withColor(255, 0, 0);
+						e.withFooterIcon(Bot.getClient().getApplicationIconURL());
+						e.withFooterText(u.getName() + "'s profile");
+						e.withTimestamp(System.currentTimeMillis());
+						
+						e.appendField("Moneyboard Rank", "Rank " + info.getMoneyRank(m.getGuild()), true);
+						e.appendField("Levelboard Rank", "Rank " + info.getLevelRank(m.getGuild()), true);
+
+						e.appendField("Balance", "$" + info.getMoney(), true);
+
+						if (info.isDailyAvailable()) {
+							e.appendField("Daily", "Available for collection. Use `" + CommandHandler.getCommandPrefix()
+									+ "daily` to collect.", true);
+						} else {
+							e.appendField(
+									"Daily", "Ready in `"
+											+ AutomodUtil.timeToString((int) (info.timeUntilNextDaily() / 1000)) + "`",
+									true);
+						}
+
+						e.appendField("Level", Integer.toString(info.getLevel()), true);
+						e.appendField("Experience", info.getXp() + "/" + info.getXpUntilNextLevel(), true);
+
+						m.getChannel().sendMessage(e.build());
+
+						return "";
 					}),
 			new Command("game",
-					"Usage: `game start [game] [*optional*seconds to start]` or `game join` or `game list`\nCreate a new game or join one.\n`game list` shows the possible games you can play.",
+					"Usage: `game start [game] [*optional* seconds to start]` or `game join` or `game list`\nCreate a new game or join one.\n`game list` shows the possible games you can play.",
 					"fun", (final String[] param, IMessage m) -> {
 						if (param.length == 0) {
 							return "Must include arguments.";
 						} else if (param[0].equals("start")) {
 							if (GameHandler.hasGame(m.getChannel())) {
-								return "Game already running!";
+								return GameHandler.getGame(m.getChannel()).getName() + " already running!";
 							}
 
 							if (param.length < 2) {
@@ -455,9 +521,9 @@ public final class CommandStorage {
 							}
 
 							Game game = null;
-							if (param[1].equals("bunny")) {
+							if (param[1].equalsIgnoreCase("bunny")) {
 								game = new BunnyGame();
-							} else if (param[1].equals("fish")) {
+							} else if (param[1].equalsIgnoreCase("fish")) {
 								game = new FishingGame();
 							} else {
 								return "Invalid game. Use `" + CommandHandler.getCommandPrefix()
@@ -483,9 +549,9 @@ public final class CommandStorage {
 
 							GameHandler.addGame(game, m.getChannel());
 							GameHandler.getGame(m.getChannel()).addUser(m.getAuthor());
-							;
 
-							return "Started game. Use `" + CommandHandler.getCommandPrefix() + "game join` to join.";
+							return "Starting " + game.getName() + " in " + (game.getTimeUntilStart() / 1000)
+									+ " seconds. Use `" + CommandHandler.getCommandPrefix() + "game join` to join.";
 						} else if (param[0].equals("join")) {
 							if (!GameHandler.hasGame(m.getChannel())) {
 								return "No game running!";
@@ -502,35 +568,38 @@ public final class CommandStorage {
 							}
 							g.addUser(m.getAuthor());
 
-							return "Joined the game!";
+							return "Joined " + g.getName() + ". It will start in " + (g.getTimeUntilStart() / 1000)
+									+ " seconds.";
 						} else if (param[0].equals("list")) {
-							return "**Available games:**\nBunny - Totally legal bunny racing\nFish - Whoever gets the fish wins!";
+							return "**Available games:**\bunny - Totally legal bunny racing\nfish - Whoever gets the fish wins!";
 						}
 
 						return "Invalid argument.";
 					}),
-			new Command("leaderboard", "Usage: `leaderboard`\nView the richest people on this Discord!", "economy",
-					(final String[] p, final IMessage m) -> {
-						List<IUser> guildUsers = m.getGuild().getUsers();
-						Map<IUser, UserInfo> users = Users.getUsers();
-						ArrayList<Entry<IUser, UserInfo>> leaderboard = new ArrayList<>();
+			new Command("moneyboard",
+					"Usage: `moneyboard` or `moneyboard [user]`\nView the richest people on this Discord.\nIf a user is provided, shows his/her rank in the moneyboard",
+					"meta", (final String[] p, final IMessage m) -> {
+						ArrayList<Entry<IUser, UserInfo>> leaderboard = Users.getMoneyboard(m.getGuild());
 
-						for (Entry<IUser, UserInfo> e : users.entrySet()) {
-							if (guildUsers.contains(e.getKey())) {
-								leaderboard.add(e);
+						if (p.length >= 1) {
+							IUser u = AutomodUtil.getUser(p[0], m.getGuild());
+							if (u == null) {
+								return "Invalid user!";
 							}
+
+							for (int i = 0; i < leaderboard.size(); ++i) {
+								Entry<IUser, UserInfo> e = leaderboard.get(i);
+								if (e.getKey().equals(u)) {
+									return u.getName() + " is rank #" + (i + 1) + " on the moneyboard with $"
+											+ e.getValue().getMoney();
+								}
+							}
+
+							return u.getName()
+									+ " is not on the moneyboard yet because they haven't earned any money yet!";
 						}
 
-						// sorting a map by a custom value... only java makes it
-						// this easy
-						Collections.sort(leaderboard, new Comparator<Entry<IUser, UserInfo>>() {
-							@Override
-							public int compare(Entry<IUser, UserInfo> left, Entry<IUser, UserInfo> right) {
-								return (int) (right.getValue().getMoney() - left.getValue().getMoney());
-							}
-						});
-
-						String out = "**🏆Server Leaderboad🏆**\n";
+						String out = "**🏆Server Moneyboard🏆**\n";
 						int i = 0;
 						for (Entry<IUser, UserInfo> e : leaderboard) {
 							out += (++i) + " - " + e.getKey().getName() + " with $" + e.getValue().getMoney() + "\n";
@@ -541,8 +610,77 @@ public final class CommandStorage {
 
 						return out;
 					}),
-			new Command("gamble", "Usage: gamble [amount]\nGamble an amount for the chance to win it big!", "fun",
-					(final String[] p, final IMessage m) -> {
+			new Command("levelboard",
+					"Usage: `levelboard` or `levelboard [user]`\nView the highest-level people on this Discord.\nIf a user is provided, shows his/her rank in the levelboard",
+					"meta", (final String[] p, final IMessage m) -> {
+						ArrayList<Entry<IUser, UserInfo>> leaderboard = Users.getLevelboard(m.getGuild());
+
+						if (p.length >= 1) {
+							IUser u = AutomodUtil.getUser(p[0], m.getGuild());
+							if (u == null) {
+								return "Invalid user!";
+							}
+
+							for (int i = 0; i < leaderboard.size(); ++i) {
+								Entry<IUser, UserInfo> e = leaderboard.get(i);
+								if (e.getKey().equals(u)) {
+									return u.getName() + " is rank #" + (i + 1) + " on the levelboard at level "
+											+ e.getValue().getLevel();
+								}
+							}
+
+							return u.getName()
+									+ " is not on the levelboard yet because they haven't earned any experience yet!";
+						}
+
+						String out = "**🏆Server Levelboard🏆**\n";
+						int i = 0;
+						for (Entry<IUser, UserInfo> e : leaderboard) {
+							out += (++i) + " - " + e.getKey().getName() + " at level " + e.getValue().getLevel() + "\n";
+							if (i >= 10) {
+								break;
+							}
+						}
+
+						return out;
+					}),
+			new Command("leaderboard",
+					"Usage: `leaderboard` or `levelboard [user]`\nView the leaderboard, a combination of the money board and level board.\nIf a user is provided, shows his/her rank in the levelboard",
+					"meta", (final String[] p, final IMessage m) -> {
+						ArrayList<Entry<IUser, UserInfo>> leaderboard = Users.getLeaderboard(m.getGuild());
+
+						if (p.length >= 1) {
+							IUser u = AutomodUtil.getUser(p[0], m.getGuild());
+							if (u == null) {
+								return "Invalid user!";
+							}
+
+							for (int i = 0; i < leaderboard.size(); ++i) {
+								Entry<IUser, UserInfo> e = leaderboard.get(i);
+								if (e.getKey().equals(u)) {
+									return u.getName() + " is rank #" + (i + 1) + " on the leaderboard at level "
+											+ e.getValue().getLevel();
+								}
+							}
+
+							return u.getName()
+									+ " is not on the leaderboard yet because they haven't earned any experience yet!";
+						}
+
+						String out = "**🏆Server Leaderboard🏆**\n";
+						int i = 0;
+						for (Entry<IUser, UserInfo> e : leaderboard) {
+							out += (++i) + " - " + e.getKey().getName() + "\n";
+							if (i >= 10) {
+								break;
+							}
+						}
+
+						return out;
+					},"rank,ranks,ranking,rankings"),
+			new Command("gamble",
+					"Usage: `gamble [amount]` or `gamble all`\nGamble an amount for the chance to win it big!\n`gamble all` gambles all of your money",
+					"fun", (final String[] p, final IMessage m) -> {
 						if (p.length == 0) {
 							return "Must provide a monetary amount!";
 						}
@@ -568,14 +706,14 @@ public final class CommandStorage {
 							return "You do not have enough money to gamble $" + amount + "!";
 						}
 
-						int success = -1;
-						//make it harder the more money you have
-						for(long i = info.getMoney();i>=10;i = i / 10){
+						int success = 0;
+						// make it harder the more money you have
+						for (long i = info.getMoney(); i >= 10; i = i / 10) {
 							--success;
 						}
 
 						String roll = Long.toString(Math.abs(Bot.random.nextLong()));
-						String ID = m.getAuthor().getID();
+						String ID = m.getAuthor().getStringID();
 						for (int i = 0; i < ID.length(); ++i) {
 							if (i < roll.length() && (roll.charAt(i) == ID.charAt(i)
 									|| (i > 0 && roll.charAt(i) == ID.charAt(i - 1)))) {
@@ -596,16 +734,26 @@ public final class CommandStorage {
 						} else if (success == 1) {
 							output = "You didn\'t lose or gain anything.";
 						} else if (success > 1 && success < 5) {
-							reward = (long) Math.ceil(amount * (1.0 + (success * 0.25)));
+							reward = (long) Math.ceil(amount * (1.0 + (success * 0.3)));
 							output = "You got some money! ";
 						} else if (success >= 5) {
 							output = "JACKPOT! ";
 						}
 
+						info.addXp(success - 1, m.getChannel());
 						info.addMoney(reward - amount);
 
-						return output + " You got $" + reward + ". You are now at $" + info.getMoney();
-					}),
+						if (reward < amount) {
+							output += "You lost $" + (amount - reward) + ", putting you at $";
+						} else if (reward > amount) {
+							output += "You gained $" + (reward - amount) + ", putting you at $";
+						} else {
+							// reward is the same as the amount
+							output += "You stayed at $";
+						}
+
+						return output + info.getMoney();
+					}, "slots,casino,lotto,lottery,bet"),
 			new Command("daily", "Usage: `daily`\nUse once a day to get $100 for free!", "economy",
 					(final String[] p, final IUser u) -> {
 						final UserInfo info = Users.getInfo(u);
@@ -674,5 +822,5 @@ public final class CommandStorage {
 							e.printStackTrace();
 							return "Error reading from joke server!";
 						}
-					}) };
+					}, "norris,chucknorris") };
 }

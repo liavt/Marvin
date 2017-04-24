@@ -30,6 +30,14 @@ public class Configuration {
 	public static final int MAX_GAME_SIZE = 6;
 
 	public static final int GAME_REWARD = 10;
+	
+	public static final long RATE_LIMIT_RETRY = 10;
+	
+	public static final int COMMAND_XP = 1;
+	
+	public static final int GAME_WIN_XP = 5;
+	
+	public static final int LEVEL_UP_REWARD = 10;
 
 	public static final Map<String, String> properties = new HashMap<>();
 

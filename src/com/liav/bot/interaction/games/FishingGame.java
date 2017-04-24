@@ -2,10 +2,8 @@ package com.liav.bot.interaction.games;
 
 import java.util.ArrayList;
 
-import com.liav.bot.interaction.user.Users;
+import com.liav.bot.main.AutomodUtil;
 import com.liav.bot.main.Bot;
-import com.liav.bot.main.Configuration;
-import com.liav.bot.util.AutomodUtil;
 
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.DiscordException;
@@ -106,20 +104,13 @@ public class FishingGame extends Game {
 			fishX = width - 1;
 		}
 
-		Boat winner = null;
+		IUser winner = null;
 
 		if (fishY >= HEIGHT) {
 			for (int i = 1; i < boats.size() + 1; ++i) {
 				if (fishX > (i - 1) * widthStep && fishX < i * widthStep) {
-					winner = boats.get((boats.size() - 1) - (i - 1));
-					if (winner.user == null) {
-						output += "Drats! The bot won!";
-					} else {
-						output += winner.user.getName() + " got the magic fish worth $" + Configuration.GAME_REWARD
-								+ "!";
-						Users.getInfo(winner.user).addMoney(Configuration.GAME_REWARD);
-					}
-					break;
+					winner = boats.get((boats.size() - 1) - (i - 1)).user;
+					win(winner, message.getChannel());
 				}
 			}
 			if (winner == null) {
@@ -173,6 +164,11 @@ public class FishingGame extends Game {
 
 		width = ((widthStep) * boats.size());
 		fishX = width / 2;
+	}
+
+	@Override
+	public String getName() {
+		return "Fishing Game";
 	}
 
 }

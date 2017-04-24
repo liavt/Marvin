@@ -3,12 +3,7 @@ package com.liav.bot.listeners;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
-import sx.blah.discord.handle.obj.IRole;
-import sx.blah.discord.handle.obj.Status;
 
-import java.util.List;
-
-import com.liav.bot.interaction.user.Users;
 import com.liav.bot.main.Bot;
 import com.liav.bot.main.Configuration;
 
@@ -27,8 +22,7 @@ public class ReadyListener implements IListener<ReadyEvent> {
 			System.out.println("Connected to Discord. Preparing...");
 			Configuration.load();
 			final IDiscordClient client = event.getClient();
-			client.changePresence(false);
-			client.changeStatus(Status.game(Configuration.properties.get("BOT_STATUS")));
+			client.online(Configuration.properties.get("BOT_STATUS"));
 			while (!client.isReady()) {
 				Thread.sleep(1);
 			}

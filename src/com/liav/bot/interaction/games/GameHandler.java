@@ -1,6 +1,5 @@
 package com.liav.bot.interaction.games;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,7 +8,7 @@ import com.liav.bot.main.Configuration;
 import com.liav.bot.main.tasks.TaskPool;
 
 import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IGuild;
+
 
 public class GameHandler {
 	private static Map<IChannel, Game> games = new HashMap<>();
@@ -33,7 +32,7 @@ public class GameHandler {
 				g.deductTime(Configuration.UPDATE_RATE);
 				if(g.getTimeUntilStart() <= 0){
 					try {
-						g.setMessage(Bot.sendMessage("Starting game...", c));
+						g.setMessage(Bot.sendMessage("Starting " + g.getName() + "...", c));
 						g.init();
 					} catch (Exception e) {
 						Bot.incrementError();
@@ -43,9 +42,11 @@ public class GameHandler {
 				return false;
 			}
 			boolean result = g.tick();
+			
 			if(result){
-				games.remove(c);
+				games.remove(c);				
 			}
+			
 			return result;
 		});
 	}

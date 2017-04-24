@@ -4,12 +4,13 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.liav.bot.interaction.user.UserInfo;
+import com.liav.bot.interaction.user.Users;
+import com.liav.bot.main.AutomodUtil;
 import com.liav.bot.main.Bot;
 import com.liav.bot.main.Configuration;
-import com.liav.bot.util.AutomodUtil;
 import com.liav.bot.util.storage.CommandStorage;
 
-import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
@@ -51,10 +52,19 @@ public final class CommandHandler {
 	 *         of {@code s.} Returns null if no {@code Command} was found.
 	 */
 	public static Command getCommand(String s) {
+		if(s.isEmpty()){
+			return null;
+		}
+		
 		final Command[] commands = CommandStorage.commands;
 		for (Command c : commands) {
 			if (c.getName().equalsIgnoreCase(s) || (" " + c.getName()).equalsIgnoreCase(s)) {
 				return c;
+			}
+			for(String al : c.getAliases()){
+				if(!al.isEmpty()&&(al.equalsIgnoreCase(s) || (" " + al).equalsIgnoreCase(s))){
+					return c;
+				}
 			}
 		}
 		return null;
@@ -66,8 +76,8 @@ public final class CommandHandler {
 			if (param.length != 2) {
 				return "Invalid!";
 			}
-			Bot.setCurrentChannel(Bot.getClient().getChannelByID(param[1]));
-			return "Set speaking channel to " + param[1] + " (" + Bot.getClient().getChannelByID(param[1]).getName()
+			Bot.setCurrentChannel(Bot.getClient().getChannelByID(Long.parseLong(param[1])));
+			return "Set speaking channel to " + param[1] + " (" + Bot.getClient().getChannelByID(Long.parseLong(param[1])).getName()
 					+ ")";
 		} else if (message.startsWith(getCommandPrefix() + "save")) {
 			Configuration.save();
@@ -115,16 +125,23 @@ public final class CommandHandler {
 		final Thread thread = new Thread(() -> {
 			try {
 
-				final String command = m.getContent();
-				final String[] split = command.substring(offset).split(" ");
+				String command = m.getContent().substring(offset);
+				
+				while(command.startsWith(" ")){
+					command = command.substring(1);
+				}
+				
+				final String[] split = command.split(" ");
 				String[] param = new String[split.length > 1 ? split.length - 1 : 0];
 				if (split.length > 1) {
 					System.arraycopy(split, 1, param, 0, param.length);
 				}
+				
 				final Command c = getCommand(split[0]);
 				if (c == null) {
 					return;
 				}
+				
 				if ((c.isAdminCommand() && AutomodUtil.isAdmin(m.getAuthor(), m.getChannel().getGuild()))
 						|| !c.isAdminCommand()) {
 					Bot.setTyping(true, m.getChannel());
@@ -134,6 +151,9 @@ public final class CommandHandler {
 					final String reply = "\u200B" + c.execute(param, m);
 					if (reply != null && !reply.equals("")) {
 						Bot.sendMessage(reply, c.isTTS(), m.getChannel());
+						
+						UserInfo info = Users.getInfo(m.getAuthor());
+						info.addXp(Configuration.COMMAND_XP, m.getChannel());
 					}
 				} else {
 					Bot.sendMessage("Must be an admin to use this command!", false, m.getChannel());

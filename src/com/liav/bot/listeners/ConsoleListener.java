@@ -6,10 +6,6 @@ import java.util.Scanner;
 import com.liav.bot.interaction.commands.CommandHandler;
 import com.liav.bot.main.Bot;
 
-import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.MissingPermissionsException;
-import sx.blah.discord.util.RateLimitException;
-
 public class ConsoleListener implements Runnable{
 	@Override
 	public void run(){

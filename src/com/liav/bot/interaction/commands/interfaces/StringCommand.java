@@ -2,9 +2,9 @@ package com.liav.bot.interaction.commands.interfaces;
 
 import com.liav.bot.interaction.commands.CategoryHandler;
 import com.liav.bot.interaction.commands.CategoryHandler.Category;
+import com.liav.bot.main.AutomodUtil;
 import com.liav.bot.interaction.commands.Command;
 import com.liav.bot.interaction.commands.CommandHandler;
-import com.liav.bot.util.AutomodUtil;
 import com.liav.bot.util.storage.CommandStorage;
 
 import sx.blah.discord.handle.obj.IMessage;
@@ -78,9 +78,15 @@ public interface StringCommand extends InteractiveCommand {
 					}
 					sb.append("\n");
 				}
-				return sb.append("\nUse `help [command]` to learn more about a specific command.\n\nThere are `")
+				return sb.append("\nUse `")
+						.append(CommandHandler.getCommandPrefix())
+						.append("help [command]` to learn more about a specific command.\n\nThere are `")
+						.append(CommandStorage.commands.length)
+						.append("` commands in `")
 						.append(CategoryHandler.getCategories().length)
-						.append("` command categories.\nUse `category` to view them in more detail").toString();
+						.append("` command categories.\nUse `")
+						.append(CommandHandler.getCommandPrefix())
+						.append("category` to view them in more detail").toString();
 			}
 			final Command c = CommandHandler.getCommand(p[0]);
 			if (c == null) {
