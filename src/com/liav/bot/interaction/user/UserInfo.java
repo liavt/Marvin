@@ -10,6 +10,7 @@ import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.EmbedBuilder;
+import sx.blah.discord.util.RequestBuffer;
 
 public class UserInfo {
 	private long money = 0;
@@ -96,8 +97,10 @@ public class UserInfo {
 			e.appendField("Experience until next level", Integer.toString(getXpUntilNextLevel()), true);
 			e.appendField("You have won $" + Configuration.LEVEL_UP_REWARD + "!", "Your new balance is $" + getMoney(),
 					false);
-
-			c.sendMessage(e.build());
+			
+			RequestBuffer.request(()->{
+				c.sendMessage(e.build());
+			});
 		}
 	}
 

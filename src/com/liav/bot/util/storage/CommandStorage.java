@@ -299,15 +299,38 @@ public final class CommandStorage {
 						+ "help` to view commands.\nCreated by Liav Turkia with :heart:\nSource code at https://www.github.com/liavt/marvin\nTo invite your server, open this link:\nhttps://discordapp.com/oauth2/authorize?client_id=199977541635801088&scope=bot&permissions=271711254";
 			}, "about"), new Command("status", "Usage: `status`\nView uptime, errors, and various debug values", "meta",
 					false, true, (final String[] p, final IUser u) -> {
-						return "Up for `"
-								+ AutomodUtil.timeToString(Integer.parseInt(String.format("%d",
-										TimeUnit.MILLISECONDS
-												.toSeconds(System.currentTimeMillis() - Bot.getStartTime()))))
-								+ "`\nWith `" + Bot.getErrors() + "` errors and `" + Bot.getCommands()
-								+ "` commands executed." + "\nCurrent task pool size: `" + TaskPool.tasks() + "`";
+						String output = "";
+						output += "Up for `" + AutomodUtil.timeToString(Integer.parseInt(String.format("%d",
+								TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - Bot.getStartTime()))));
+						if(Bot.getCommands() > 0){
+							output += "`\nWith `" + Bot.getErrors() + "` errors and `" + Bot.getCommands()
+							+ "` commands executed.";
+							double success = 1.0d - ((double)Bot.getErrors() / (double)Bot.getCommands());
+							output += "\nSuccess rate: `"+(success * 100)+"%` (";
+							if(success == 1.0f){
+								output += "Perfect";
+							}else if(success >= 0.9f){
+								output += "Excellent";
+							}else if(success >= 0.75f){
+								output += "Great";
+							}else if(success >= 0.6f){
+								output += "Good";
+							}else if(success >= 0.4f){
+								output += "Mediocre";
+							}else if(success >= 0.2f){
+								output += "Bad";
+							}else if(success != 0.0f){
+								output += "Terrible";
+							}else{
+								output += "Broken";
+							}
+						}
+						output += ")";
+						output += "\nCurrent task pool size: `" + TaskPool.tasks() + "`";
+						return  output;
 					}),
 			new Command("say",
-					"Usage: `say [phrase]` or `say tts [phrase]*\nMake the bot say a phrase\nOptional parameter `tts` makes the message utilize TTS (Text-to-Speech)",
+					"Usage: `say [phrase]` or `say -t [phrase]` or `say -e [phrase]`*\nMake the bot say a phrase\nOptional parameter `-e` makes the bot output the phrase emojified\nOptional parameter `-t` makes the message utilize TTS (Text-to-Speech)",
 					"util", false, true, (final String[] p, final IMessage m) -> {
 						if (p.length < 1) {
 							return "Must have a parameter!";
@@ -327,19 +350,21 @@ public final class CommandStorage {
 							Bot.incrementError();
 						}
 
-						final boolean tts;
-						if (p[0].equals("tts")) {
-							tts = true;
-						} else {
-							tts = false;
-						}
+						final boolean tts = p[0].equals("-t");
+						final boolean emoji = p[0].equals("-e");
+						
 						final StringBuilder sb = new StringBuilder();
-						for (int i = tts ? 1 : 0; i < p.length; i++) {
+						for (int i = tts || emoji ? 1 : 0; i < p.length; i++) {
 							sb.append(p[i]).append(" ");
+						}
+						
+						String message = sb.toString();
+						if(emoji){
+							message = AutomodUtil.stringToEmoji(message);
 						}
 
 						try {
-							Bot.sendMessage(sb.toString(), tts, m.getChannel());
+							Bot.sendMessage(message, tts, m.getChannel());
 						} catch (DiscordException e) {
 							e.printStackTrace();
 							Bot.incrementError();
@@ -483,7 +508,7 @@ public final class CommandStorage {
 						e.withFooterIcon(Bot.getClient().getApplicationIconURL());
 						e.withFooterText(u.getName() + "'s profile");
 						e.withTimestamp(System.currentTimeMillis());
-						
+
 						e.appendField("Moneyboard Rank", "Rank " + info.getMoneyRank(m.getGuild()), true);
 						e.appendField("Levelboard Rank", "Rank " + info.getLevelRank(m.getGuild()), true);
 
@@ -677,7 +702,7 @@ public final class CommandStorage {
 						}
 
 						return out;
-					},"rank,ranks,ranking,rankings"),
+					}, "rank,ranks,ranking,rankings"),
 			new Command("gamble",
 					"Usage: `gamble [amount]` or `gamble all`\nGamble an amount for the chance to win it big!\n`gamble all` gambles all of your money",
 					"fun", (final String[] p, final IMessage m) -> {

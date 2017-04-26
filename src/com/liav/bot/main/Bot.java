@@ -144,26 +144,24 @@ public class Bot {
 		setTyping(false, channel);
 		//retry sending
 		try{
-			return mb.build();
+			return RequestBuffer.request(()->{
+				return mb.build();
+			}).get();
 		}catch(RateLimitException e){
-			try {
-				Thread.sleep(Configuration.RATE_LIMIT_RETRY);
-			} catch (InterruptedException e1) {
-				Bot.incrementError();
-				e1.printStackTrace();
-			}
-			//retry sending if it failed
+			Bot.incrementError();
+			e.printStackTrace();
+			//retry if failed for some reason
 			return mb.build();
 		}
 	}
 
 	public static void reply(IMessage first, String message)
 			throws MissingPermissionsException, DiscordException{
-		setTyping(true, first.getChannel());
 		RequestBuffer.request(()->{
+			setTyping(true, first.getChannel());
 			first.reply(message);
+			setTyping(false, first.getChannel());
 		});
-		setTyping(false, first.getChannel());
 	}
 
 	/**

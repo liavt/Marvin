@@ -52,17 +52,17 @@ public final class CommandHandler {
 	 *         of {@code s.} Returns null if no {@code Command} was found.
 	 */
 	public static Command getCommand(String s) {
-		if(s.isEmpty()){
+		if (s.isEmpty()) {
 			return null;
 		}
-		
+
 		final Command[] commands = CommandStorage.commands;
 		for (Command c : commands) {
 			if (c.getName().equalsIgnoreCase(s) || (" " + c.getName()).equalsIgnoreCase(s)) {
 				return c;
 			}
-			for(String al : c.getAliases()){
-				if(!al.isEmpty()&&(al.equalsIgnoreCase(s) || (" " + al).equalsIgnoreCase(s))){
+			for (String al : c.getAliases()) {
+				if (!al.isEmpty() && (al.equalsIgnoreCase(s) || (" " + al).equalsIgnoreCase(s))) {
 					return c;
 				}
 			}
@@ -77,8 +77,8 @@ public final class CommandHandler {
 				return "Invalid!";
 			}
 			Bot.setCurrentChannel(Bot.getClient().getChannelByID(Long.parseLong(param[1])));
-			return "Set speaking channel to " + param[1] + " (" + Bot.getClient().getChannelByID(Long.parseLong(param[1])).getName()
-					+ ")";
+			return "Set speaking channel to " + param[1] + " ("
+					+ Bot.getClient().getChannelByID(Long.parseLong(param[1])).getName() + ")";
 		} else if (message.startsWith(getCommandPrefix() + "save")) {
 			Configuration.save();
 			return "Saved.";
@@ -124,42 +124,44 @@ public final class CommandHandler {
 	public static void executeCommand(int offset, IMessage m) {
 		final Thread thread = new Thread(() -> {
 			try {
+				if (!m.getAuthor().isBot()) {
+					UserInfo info = Users.getInfo(m.getAuthor());
+					info.addXp(Configuration.COMMAND_XP, m.getChannel());
 
-				String command = m.getContent().substring(offset);
-				
-				while(command.startsWith(" ")){
-					command = command.substring(1);
-				}
-				
-				final String[] split = command.split(" ");
-				String[] param = new String[split.length > 1 ? split.length - 1 : 0];
-				if (split.length > 1) {
-					System.arraycopy(split, 1, param, 0, param.length);
-				}
-				
-				final Command c = getCommand(split[0]);
-				if (c == null) {
-					return;
-				}
-				
-				if ((c.isAdminCommand() && AutomodUtil.isAdmin(m.getAuthor(), m.getChannel().getGuild()))
-						|| !c.isAdminCommand()) {
-					Bot.setTyping(true, m.getChannel());
-					Bot.incrementCommands();
-					System.out.println("Executing command: " + split[0]);
-					//zero width space prevents it from accidently executing other bots
-					final String reply = "\u200B" + c.execute(param, m);
-					if (reply != null && !reply.equals("")) {
-						Bot.sendMessage(reply, c.isTTS(), m.getChannel());
-						
-						UserInfo info = Users.getInfo(m.getAuthor());
-						info.addXp(Configuration.COMMAND_XP, m.getChannel());
+					String command = m.getContent().substring(offset);
+
+					while (command.startsWith(" ")) {
+						command = command.substring(1);
 					}
-				} else {
-					Bot.sendMessage("Must be an admin to use this command!", false, m.getChannel());
-				}
 
-				Bot.setTyping(false, m.getChannel());
+					final String[] split = command.split(" ");
+					String[] param = new String[split.length > 1 ? split.length - 1 : 0];
+					if (split.length > 1) {
+						System.arraycopy(split, 1, param, 0, param.length);
+					}
+
+					final Command c = getCommand(split[0]);
+					if (c == null) {
+						return;
+					}
+
+					if ((c.isAdminCommand() && AutomodUtil.isAdmin(m.getAuthor(), m.getChannel().getGuild()))
+							|| !c.isAdminCommand()) {
+						Bot.setTyping(true, m.getChannel());
+						Bot.incrementCommands();
+						System.out.println("Executing command: " + split[0]);
+						// zero width space prevents it from accidently
+						// executing other bots
+						final String reply = c.execute(param, m);
+						if (reply != null && !reply.equals("") && !reply.isEmpty()) {
+							Bot.sendMessage("\u200B" + reply, c.isTTS(), m.getChannel());
+						}
+					} else {
+						Bot.sendMessage("Must be an admin to use this command!", false, m.getChannel());
+					}
+
+					Bot.setTyping(false, m.getChannel());
+				}
 			} catch (Throwable t) {
 				Bot.setTyping(false, m.getChannel());
 				t.printStackTrace();
