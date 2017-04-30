@@ -24,7 +24,6 @@ public class MentionListener implements IListener<MentionEvent> {
 	@Override
 	public void handle(MentionEvent event) {
 		try {
-			Bot.setTyping(true, event.getMessage().getChannel());
 			if (event.getMessage().getContent().startsWith("<")) {
 				System.out.println("Mentioned.");
 				final int offset = event.getMessage().getContent().indexOf(">") + 2;

@@ -147,7 +147,6 @@ public final class CommandHandler {
 
 					if ((c.isAdminCommand() && AutomodUtil.isAdmin(m.getAuthor(), m.getChannel().getGuild()))
 							|| !c.isAdminCommand()) {
-						Bot.setTyping(true, m.getChannel());
 						Bot.incrementCommands();
 						System.out.println("Executing command: " + split[0]);
 						// zero width space prevents it from accidently
@@ -159,11 +158,8 @@ public final class CommandHandler {
 					} else {
 						Bot.sendMessage("Must be an admin to use this command!", false, m.getChannel());
 					}
-
-					Bot.setTyping(false, m.getChannel());
 				}
 			} catch (Throwable t) {
-				Bot.setTyping(false, m.getChannel());
 				t.printStackTrace();
 				Bot.incrementError();
 			}

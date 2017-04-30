@@ -141,10 +141,10 @@ public class Bot {
 		if (tts) {
 			mb.withTTS();
 		}
-		setTyping(false, channel);
 		//retry sending
 		try{
 			return RequestBuffer.request(()->{
+				setTyping(false, channel);
 				return mb.build();
 			}).get();
 		}catch(RateLimitException e){

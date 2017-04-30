@@ -3,6 +3,7 @@ package com.liav.bot.listeners;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
+import sx.blah.discord.handle.obj.IRole;
 
 import com.liav.bot.main.Bot;
 import com.liav.bot.main.Configuration;
