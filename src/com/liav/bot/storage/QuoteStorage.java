@@ -1,4 +1,4 @@
-package com.liav.bot.util.storage;
+package com.liav.bot.storage;
 
 import com.liav.bot.interaction.commands.Command;
 

@@ -7,7 +7,7 @@ import sx.blah.discord.handle.obj.IMessage;
 import com.liav.bot.interaction.commands.Command;
 import com.liav.bot.interaction.commands.CommandHandler;
 import com.liav.bot.main.Bot;
-import com.liav.bot.util.storage.CommandStorage;
+import com.liav.bot.storage.CommandStorage;
 
 /**
  * {@link IListener} which checks for when this bot is {@link MentionEvent
@@ -25,9 +25,7 @@ public class MentionListener implements IListener<MentionEvent> {
 	public void handle(MentionEvent event) {
 		try {
 			if (event.getMessage().getContent().startsWith("<")) {
-				System.out.println("Mentioned.");
-				final int offset = event.getMessage().getContent().indexOf(">") + 2;
-				CommandHandler.executeCommand(offset, event.getMessage());
+				CommandHandler.executeCommand(event.getMessage().getContent().indexOf(">") + 1, event.getMessage());
 			}
 		} catch (Throwable t) {
 			Bot.incrementError();

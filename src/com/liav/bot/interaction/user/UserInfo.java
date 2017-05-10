@@ -98,9 +98,7 @@ public class UserInfo {
 			e.appendField("You have won $" + Configuration.LEVEL_UP_REWARD + "!", "Your new balance is $" + getMoney(),
 					false);
 			
-			RequestBuffer.request(()->{
-				c.sendMessage(e.build());
-			});
+			Bot.sendEmbed(e, c);
 		}
 	}
 

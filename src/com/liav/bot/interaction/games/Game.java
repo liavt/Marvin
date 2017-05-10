@@ -49,7 +49,7 @@ public abstract class Game {
 			e.withFooterIcon(Bot.getClient().getApplicationIconURL());
 			e.withFooterText(getName());
 
-			c.sendMessage(e.build());
+			Bot.sendEmbed(e, c);
 		}
 	}
 

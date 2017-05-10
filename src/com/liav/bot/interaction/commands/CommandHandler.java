@@ -9,7 +9,7 @@ import com.liav.bot.interaction.user.Users;
 import com.liav.bot.main.AutomodUtil;
 import com.liav.bot.main.Bot;
 import com.liav.bot.main.Configuration;
-import com.liav.bot.util.storage.CommandStorage;
+import com.liav.bot.storage.CommandStorage;
 
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;

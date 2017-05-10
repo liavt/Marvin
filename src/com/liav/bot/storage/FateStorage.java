@@ -1,4 +1,4 @@
-package com.liav.bot.util.storage;
+package com.liav.bot.storage;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;

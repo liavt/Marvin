@@ -6,4 +6,4 @@
  * @author Liav
  *
  */
-package com.liav.bot.util.storage;
+package com.liav.bot.storage;

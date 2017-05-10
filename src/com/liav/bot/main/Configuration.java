@@ -33,7 +33,7 @@ public class Configuration {
 	
 	public static final long RATE_LIMIT_RETRY = 10;
 	
-	public static final int COMMAND_XP = 1;
+	public static final int COMMAND_XP = 2;
 	
 	public static final int GAME_WIN_XP = 5;
 	

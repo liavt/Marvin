@@ -4,7 +4,7 @@ import com.liav.bot.interaction.commands.CategoryHandler.Category;
 import com.liav.bot.interaction.commands.interfaces.AdvancedCommand;
 import com.liav.bot.interaction.commands.interfaces.InteractiveCommand;
 import com.liav.bot.interaction.commands.interfaces.StringCommand;
-import com.liav.bot.util.storage.CommandStorage;
+import com.liav.bot.storage.CommandStorage;
 
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;

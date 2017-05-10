@@ -8,7 +8,7 @@ import com.liav.bot.interaction.commands.Command;
 import com.liav.bot.interaction.commands.CommandHandler;
 import com.liav.bot.main.AutomodUtil;
 import com.liav.bot.main.Bot;
-import com.liav.bot.util.storage.CommandStorage;
+import com.liav.bot.storage.CommandStorage;
 
 /**
  * {@link IListener} which checks for when {@link MessageReceivedEvent messages

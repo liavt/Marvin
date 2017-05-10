@@ -3,9 +3,9 @@ package com.liav.bot.interaction.commands.interfaces;
 import com.liav.bot.interaction.commands.CategoryHandler;
 import com.liav.bot.interaction.commands.CategoryHandler.Category;
 import com.liav.bot.main.AutomodUtil;
+import com.liav.bot.storage.CommandStorage;
 import com.liav.bot.interaction.commands.Command;
 import com.liav.bot.interaction.commands.CommandHandler;
-import com.liav.bot.util.storage.CommandStorage;
 
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
@@ -90,7 +90,7 @@ public interface StringCommand extends InteractiveCommand {
 			}
 			final Command c = CommandHandler.getCommand(p[0]);
 			if (c == null) {
-				return c + " is not a valid command.";
+				return p[0] + " is not a valid command.";
 			}
 			return c.getHelpText() + (c.isAdminCommand() ? "\n*This is an admin-only command*" : "");
 		};

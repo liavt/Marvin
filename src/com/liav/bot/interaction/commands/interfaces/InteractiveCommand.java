@@ -3,7 +3,7 @@ package com.liav.bot.interaction.commands.interfaces;
 import com.liav.bot.interaction.commands.Command;
 import com.liav.bot.interaction.commands.CommandHandler;
 import com.liav.bot.main.Bot;
-import com.liav.bot.util.storage.CommandStorage;
+import com.liav.bot.storage.CommandStorage;
 
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;

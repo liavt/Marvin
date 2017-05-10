@@ -7,7 +7,10 @@ public class ConfigurationSaver implements Runnable {
 			synchronized (this) {
 				while (true) {
 					wait(Configuration.SAVE_TIME);
-					Configuration.save();
+					if(Bot.wasUpdated()){
+						Configuration.save();
+						Bot.setUpdated(false);
+					}
 				}
 			}
 		} catch (Throwable e) {

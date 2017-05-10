@@ -1,4 +1,4 @@
-package com.liav.bot.util.storage;
+package com.liav.bot.storage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,9 +42,11 @@ import com.liav.bot.main.tasks.TaskPool;
 
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.RateLimitException;
+import sx.blah.discord.util.audio.AudioPlayer;
 import sx.blah.discord.util.MissingPermissionsException;
 
 /**
@@ -302,32 +304,32 @@ public final class CommandStorage {
 						String output = "";
 						output += "Up for `" + AutomodUtil.timeToString(Integer.parseInt(String.format("%d",
 								TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - Bot.getStartTime()))));
-						if(Bot.getCommands() > 0){
+						if (Bot.getCommands() > 0) {
 							output += "`\nWith `" + Bot.getErrors() + "` errors and `" + Bot.getCommands()
-							+ "` commands executed.";
-							double success = 1.0d - ((double)Bot.getErrors() / (double)Bot.getCommands());
-							output += "\nSuccess rate: `"+(success * 100)+"%` (";
-							if(success == 1.0f){
+									+ "` commands executed.";
+							double success = 1.0d - ((double) Bot.getErrors() / (double) Bot.getCommands());
+							output += "\nSuccess rate: `" + (success * 100) + "%` (";
+							if (success == 1.0f) {
 								output += "Perfect";
-							}else if(success >= 0.9f){
+							} else if (success >= 0.9f) {
 								output += "Excellent";
-							}else if(success >= 0.75f){
+							} else if (success >= 0.75f) {
 								output += "Great";
-							}else if(success >= 0.6f){
+							} else if (success >= 0.6f) {
 								output += "Good";
-							}else if(success >= 0.4f){
+							} else if (success >= 0.4f) {
 								output += "Mediocre";
-							}else if(success >= 0.2f){
+							} else if (success >= 0.2f) {
 								output += "Bad";
-							}else if(success != 0.0f){
+							} else if (success != 0.0f) {
 								output += "Terrible";
-							}else{
+							} else {
 								output += "Broken";
 							}
 						}
 						output += ")";
 						output += "\nCurrent task pool size: `" + TaskPool.tasks() + "`";
-						return  output;
+						return output;
 					}),
 			new Command("say",
 					"Usage: `say [phrase]` or `say -t [phrase]` or `say -e [phrase]`*\nMake the bot say a phrase\nOptional parameter `-e` makes the bot output the phrase emojified\nOptional parameter `-t` makes the message utilize TTS (Text-to-Speech)",
@@ -352,14 +354,14 @@ public final class CommandStorage {
 
 						final boolean tts = p[0].equals("-t");
 						final boolean emoji = p[0].equals("-e");
-						
+
 						final StringBuilder sb = new StringBuilder();
 						for (int i = tts || emoji ? 1 : 0; i < p.length; i++) {
 							sb.append(p[i]).append(" ");
 						}
-						
+
 						String message = sb.toString();
-						if(emoji){
+						if (emoji) {
 							message = AutomodUtil.stringToEmoji(message);
 						}
 
@@ -417,23 +419,15 @@ public final class CommandStorage {
 						IUser sendee = m.getAuthor();
 						IUser reciever = null;
 
-						long amount = 0;
-						try {
-							amount = Long.parseLong(p[1]);
-
-							reciever = AutomodUtil.getUser(p[0], m.getGuild());
-						} catch (NumberFormatException e1) {
-							try {
-								amount = Long.parseLong(p[0]);
-							} catch (NumberFormatException e2) {
-								return "Amount must be a number!";
-							}
-
+						long amount = AutomodUtil.getAmount(p[1], m.getAuthor());
+						reciever = AutomodUtil.getUser(p[0], m.getGuild());
+						if (amount <= -1 && reciever == null) {
+							amount = AutomodUtil.getAmount(p[0], m.getAuthor());
 							reciever = AutomodUtil.getUser(p[1], m.getGuild());
 						}
 
 						if (amount <= 0) {
-							return "Amount must be greater than 0!";
+							return "Invalid amount to give!";
 						}
 
 						if (reciever == null) {
@@ -452,9 +446,9 @@ public final class CommandStorage {
 						sendeeInfo.addMoney(-amount);
 						recieverInfo.addMoney(amount);
 
-						return sendee.getName() + " has sent $" + amount + " to " + reciever.getName() + ".\n "
-								+ sendee.getName() + " now has $" + sendeeInfo.getMoney() + " and " + reciever.getName()
-								+ " now has $" + recieverInfo.getMoney();
+						return sendee.getName() + " has sent $`" + amount + "` to " + reciever.getName() + ".\n"
+								+ sendee.getName() + " now has $`" + sendeeInfo.getMoney() + "` and "
+								+ reciever.getName() + " now has $`" + recieverInfo.getMoney() + "`";
 					}, "pay"),
 			new Command("emojify", "Usage: `emojify [phrase]`\nConverts a phrase into emoji", "fun",
 					(final String[] p) -> {
@@ -527,7 +521,7 @@ public final class CommandStorage {
 						e.appendField("Level", Integer.toString(info.getLevel()), true);
 						e.appendField("Experience", info.getXp() + "/" + info.getXpUntilNextLevel(), true);
 
-						m.getChannel().sendMessage(e.build());
+						Bot.sendEmbed(e, m.getChannel());
 
 						return "";
 					}),
@@ -711,24 +705,14 @@ public final class CommandStorage {
 						}
 
 						UserInfo info = Users.getInfo(m.getAuthor());
-						long amount = 0;
-
-						if (p[0].equals("all")) {
-							amount = info.getMoney();
-						} else {
-							try {
-								amount = Long.parseLong(p[0]);
-							} catch (NumberFormatException e) {
-								return "Amount must be a number!";
-							}
-						}
+						long amount = AutomodUtil.getAmount(p[0], m.getAuthor());
 
 						if (amount <= 0) {
-							return "Amount must be greater than 0!";
+							return "Invalid amount to gamble";
 						}
 
 						if (info.getMoney() < amount) {
-							return "You do not have enough money to gamble $" + amount + "!";
+							return "You do not have enough money to gamble $`" + amount + "`!";
 						}
 
 						int success = 0;
@@ -750,34 +734,35 @@ public final class CommandStorage {
 							success = 0;
 						}
 
-						String output = "";
+						System.out.println("Hi"+m.getAuthor().mention());
+						String output = m.getAuthor().mention();
 
 						long reward = success * amount;
 
 						if (success == 0) {
-							output = "Oh no! You lost it all.";
+							output += "Oh no! You lost it all.";
 						} else if (success == 1) {
-							output = "You didn\'t lose or gain anything.";
+							output += "You didn\'t lose or gain anything.";
 						} else if (success > 1 && success < 5) {
 							reward = (long) Math.ceil(amount * (1.0 + (success * 0.3)));
-							output = "You got some money! ";
+							output += "You got some money! ";
 						} else if (success >= 5) {
-							output = "JACKPOT! ";
+							output += "JACKPOT! ";
 						}
 
 						info.addXp(success - 1, m.getChannel());
 						info.addMoney(reward - amount);
 
 						if (reward < amount) {
-							output += "You lost $" + (amount - reward) + ", putting you at $";
+							output += "You lost $`" + (amount - reward) + "`, putting you at $`";
 						} else if (reward > amount) {
-							output += "You gained $" + (reward - amount) + ", putting you at $";
+							output += "You gained $`" + (reward - amount) + "`, putting you at $`";
 						} else {
 							// reward is the same as the amount
-							output += "You stayed at $";
+							output += "You stayed at $`";
 						}
 
-						return output + info.getMoney();
+						return output + info.getMoney() + "`";
 					}, "slots,casino,lotto,lottery,bet"),
 			new Command("daily", "Usage: `daily`\nUse once a day to get $100 for free!", "economy",
 					(final String[] p, final IUser u) -> {
@@ -790,7 +775,7 @@ public final class CommandStorage {
 
 						info.doDaily();
 
-						return "You have gained $100! Your new balance is $" + info.getMoney();
+						return "You have gained $100! Your new balance is $`" + info.getMoney() + "`";
 					}),
 			new Command("chuck",
 					"Usage: `chuck [*optional* person]`\nGet a Chuck Norris joke\nThe joke will feature a user if specified\n*Jokes from http://www.icndb.com/*",
@@ -848,4 +833,61 @@ public final class CommandStorage {
 							return "Error reading from joke server!";
 						}
 					}, "norris,chucknorris") };
+	
+	/*
+	new Command("joinvoice",
+			"Usage: `joinvoice [*optional* channel]`\nJoins a voice channel to play audio. If no argument is specified, joins the channel that the user is currently in.",
+			"audio", false, true, (final String[] p, final IMessage m) -> {
+				IVoiceChannel channel = null;
+				if (p.length == 0) {
+					channel = m.getAuthor().getVoiceStateForGuild(m.getGuild()).getChannel();
+
+					if (channel == null) {
+						return "Must be in a voice channel!";
+					}
+				} else {
+					String output = p[0];
+
+					for (int i = 1; i < p.length; ++i) {
+						output += " ";
+						output += p[i];
+					}
+
+					channel = AutomodUtil.getVoiceChannel(m.getGuild(), output);
+				}
+
+				if (channel == null) {
+					return "Invalid voice channel!";
+				}
+
+				channel.join();
+
+				return "Joined " + channel.getName() + ".";
+
+			}, "joinvoicechannel,joinchannel,join"),
+	new Command("leavevoice", "Usage: `leavevoice`\nLeaves whatever voice channel the bot is in.", "audio",
+			false, true, (final String[] p, final IMessage m) -> {
+				IVoiceChannel c = Bot.getClient().getOurUser().getVoiceStateForGuild(m.getGuild()).getChannel();
+
+				if (c == null) {
+					return "Not in a voice channel currently!";
+				}
+
+				c.leave();
+				return "Left " + c.getName() + ".";
+			}, "leavevoicechannel,leavechannel,leave"),
+	new Command("play", "Usage: `play [song]`\nPlay a song from a URL", "audio",
+			(final String[] o, final IMessage m) -> {
+				IVoiceChannel c = Bot.getClient().getOurUser().getVoiceStateForGuild(m.getGuild()).getChannel();
+
+				if (c == null) {
+					return "Not in a voice channel!";
+				}
+
+				final AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(m.getGuild());
+				final TrackScheduler scheduler = new TrackScheduler(player);
+				player.addListener(scheduler);
+				
+				return "";
+			}),*/
 }

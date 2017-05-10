@@ -2,7 +2,7 @@ package com.liav.bot.interaction.commands;
 
 import java.util.ArrayList;
 
-import com.liav.bot.util.storage.CommandStorage;
+import com.liav.bot.storage.CommandStorage;
 
 /**
  * Handles the creation and storage of {@link Command} {@linkplain Category

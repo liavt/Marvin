@@ -7,9 +7,12 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import com.liav.bot.interaction.user.Users;
+
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.handle.obj.Permissions;
 
 /**
@@ -87,6 +90,38 @@ public final class AutomodUtil {
 		return null;
 	}
 
+	public static long getAmount(String s, IUser u) {
+		if (s.equals("none") || s.equals("zero")) {
+			return 0;
+		} else if (s.equals("all") || s.equals("everything")) {
+			return Users.getInfo(u).getMoney();
+		} else if (s.equals("half")) {
+			return Users.getInfo(u).getMoney() / 2;
+		} else if (s.startsWith("$") || s.startsWith("£")) {
+			return Long.parseLong(s.substring(1));
+		} else if (s.endsWith("$") || s.endsWith("£")) {
+			return Long.parseLong(s.substring(0, s.length() - 1));
+		} else if (s.startsWith("%") || s.endsWith("%")) {
+			if (s.startsWith("%")) {
+				s = s.substring(1);
+			} else {
+				s = s.substring(0, s.length() - 1);
+			}
+			int percentage;
+			try {
+				percentage = Integer.parseInt(s);
+			} catch (NumberFormatException e) {
+				return -1;
+			}
+			return (long) ((double) Users.getInfo(u).getMoney() * ((double) percentage / 100.0));
+		}
+		try {
+			return Long.parseLong(s);
+		} catch (NumberFormatException e) {
+			return -1;
+		}
+	}
+
 	/**
 	 * Converts a string to a mathematical expression and evaluates it with
 	 * Javascript.
@@ -133,6 +168,25 @@ public final class AutomodUtil {
 		return false;
 	}
 
+	public static IVoiceChannel getVoiceChannel(final IGuild g, final String s) {
+		IVoiceChannel c = null;
+		
+		try {
+			c = g.getVoiceChannelByID(Long.parseLong(s));
+		} catch (NumberFormatException e) {
+			/* ignore */
+		}
+
+		if (c == null) {
+			List<IVoiceChannel> channels = g.getVoiceChannelsByName(s);
+			if (channels.size() == 1) {
+				c = channels.get(0);
+			}
+		}
+
+		return c;
+	}
+	
 	public static String stringToEmoji(final String s) {
 		String output = "";
 

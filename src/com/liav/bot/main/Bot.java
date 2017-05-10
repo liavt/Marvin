@@ -6,7 +6,6 @@ import java.util.concurrent.Executors;
 
 
 import com.liav.bot.interaction.commands.Command;
-import com.liav.bot.interaction.commands.CommandHandler;
 import com.liav.bot.listeners.ConsoleListener;
 import com.liav.bot.listeners.MentionListener;
 import com.liav.bot.listeners.MessageListener;
@@ -19,6 +18,7 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
+import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.MessageBuilder;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
@@ -42,6 +42,7 @@ public class Bot {
 
 	private static long startTime;
 	private static long errors, commands;
+	private static boolean updated = false;
 
 	private static IChannel currentChannel = null;
 
@@ -112,6 +113,14 @@ public class Bot {
 	public static void setTyping(boolean t, IChannel c) {
 		c.setTypingStatus(t);
 	}
+	
+	public static boolean wasUpdated(){
+		return updated;
+	}
+	
+	public static void setUpdated(boolean b){
+		updated = b;
+	}
 
 	/**
 	 * Sends a message with the bot's {@link IDiscordClient client} on a
@@ -153,6 +162,14 @@ public class Bot {
 			//retry if failed for some reason
 			return mb.build();
 		}
+	}
+	
+	public static void sendEmbed(EmbedBuilder e , IChannel c){
+		RequestBuffer.request(()->{
+			setTyping(true, c);
+			c.sendMessage(e.build());
+			setTyping(false, c);
+		});
 	}
 
 	public static void reply(IMessage first, String message)
@@ -197,7 +214,8 @@ public class Bot {
 	 * Adds one error. Call this when an error occurs
 	 */
 	public static void incrementError() {
-		errors++;
+		setUpdated(true);
+		++errors;
 	}
 
 	/**
@@ -205,7 +223,8 @@ public class Bot {
 	 * {@link CommandHandler}
 	 */
 	public static void incrementCommands() {
-		commands++;
+		setUpdated(true);
+		++commands;
 	}
 
 	/**
