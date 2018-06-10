@@ -75,6 +75,7 @@ public final class AutomodUtil {
 	 * @param s
 	 *            String to be processed, either as the full name, the user ID,
 	 *            or the {@literal @mention} for the user.
+	 * @param g 
 	 * @return The specified user in the bot's {@link IGuild}. If no user was
 	 *         found, returns null.
 	 */
@@ -90,7 +91,8 @@ public final class AutomodUtil {
 		return null;
 	}
 
-	public static long getAmount(String s, IUser u) {
+	public static long getAmount(String in, IUser u) {
+		String s = in;
 		if (s.equals("none") || s.equals("zero")) {
 			return 0;
 		} else if (s.equals("all") || s.equals("everything")) {
@@ -110,14 +112,14 @@ public final class AutomodUtil {
 			int percentage;
 			try {
 				percentage = Integer.parseInt(s);
-			} catch (NumberFormatException e) {
+			} catch (@SuppressWarnings("unused") NumberFormatException e) {
 				return -1;
 			}
-			return (long) ((double) Users.getInfo(u).getMoney() * ((double) percentage / 100.0));
+			return (long) (Users.getInfo(u).getMoney() * (percentage / 100.0));
 		}
 		try {
 			return Long.parseLong(s);
-		} catch (NumberFormatException e) {
+		} catch (@SuppressWarnings("unused") NumberFormatException e) {
 			return -1;
 		}
 	}
@@ -173,7 +175,7 @@ public final class AutomodUtil {
 		
 		try {
 			c = g.getVoiceChannelByID(Long.parseLong(s));
-		} catch (NumberFormatException e) {
+		} catch (@SuppressWarnings("unused") NumberFormatException e) {
 			/* ignore */
 		}
 

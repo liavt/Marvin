@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 
 
 import com.liav.bot.interaction.commands.Command;
+import com.liav.bot.interaction.commands.CommandHandler;
 import com.liav.bot.listeners.ConsoleListener;
 import com.liav.bot.listeners.MentionListener;
 import com.liav.bot.listeners.MessageListener;
